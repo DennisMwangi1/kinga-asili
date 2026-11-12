@@ -21,7 +21,7 @@ export default function ProposalCard({proposal,execution,dismissed,autoAccepted,
    return <li key={index}>
     {count>1&&<p className="kai-change-summary">{change.summary}</p>}
     {count>1?<details><summary>View change details</summary>{fields}</details>:fields}
-    {result&&<p className={'kai-change-result kai-change-result--'+result.status}>{result.status==='failed'?result.error:result.status==='already_applied'?'Already applied':<><Check size={14}/>Saved</>}</p>}
+    {result&&<p className={'kai-change-result kai-change-result--'+result.status}>{result.status==='failed'?result.error:result.status==='already_applied'?'Already applied':<><Check size={14}/>Saved{change.action==='save_batch'&&snapshot.batches.find(batch=>batch.id===result.recordId)?.reference&&<> · {snapshot.batches.find(batch=>batch.id===result.recordId)?.reference}</>}</>}</p>}
    </li>;
   })}</ol>
   {execution&&<p className="kai-execution-summary" role="status">{execution.saved+execution.alreadyApplied} of {execution.total} completed{execution.failed?` · ${execution.failed} failed`:''}</p>}

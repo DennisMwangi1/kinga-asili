@@ -8,7 +8,7 @@ export function signProposal(user:string,role:Role,input:ProposalChange):Proposa
  const changes=validateChanges(input,role);
  const secret=process.env.ASSISTANT_PROPOSAL_SECRET;if(!secret)throw Error('Assistant proposal signing is not configured.');
  const id=randomUUID();
- const prepared=changes.map(change=>({...change,data:change.action==='save_order'?{...change.data,idempotency_key:randomUUID()}:change.data}));
+ const prepared=changes.map(change=>({...change,data:['save_order','save_purchase','save_batch'].includes(change.action)?{...change.data,idempotency_key:randomUUID()}:change.data}));
  const action=input.action==='batch'?'batch':prepared[0].action;
  const data=action==='batch'?{changes:prepared}:prepared[0].data;
  const payload=Buffer.from(JSON.stringify({user,id,action,data,summary:input.summary,expires:Date.now()+10*60*1000})).toString('base64url');

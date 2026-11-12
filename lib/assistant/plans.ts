@@ -1,3 +1,4 @@
+import {validatePurchase} from '@/lib/purchases';
 import type {Role,Snapshot} from '@/lib/domain';
 import type {ProposalChange,ExecutionItem,ExecutionResult} from './types';
 export const botActions=['save_order','transition_order','record_payment','save_batch','post_batch','save_purchase','post_purchase','save_customer','save_material','hold_lot'] as const;
@@ -16,7 +17,7 @@ export function validateChanges(proposal:ProposalChange,role:Role):ProposalChang
   if(!change||!allowedBotActions(role).includes(change.action as typeof botActions[number]))throw Error('This action is outside your role.');
   if(!change.data||typeof change.data!=='object'||Array.isArray(change.data))throw Error('Invalid change details.');
   if(change.action==='batch')throw Error('Nested change groups are not supported.');
-  const data={...change.data};
+  const data:Record<string,unknown>=change.action==='save_purchase'?validatePurchase(change.data):{...change.data};
   if(change.action==='hold_lot'){
    if(typeof data.id!=='string'||!/^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i.test(data.id)||typeof data.held!=='boolean')throw Error('Select valid batch stock and a hold setting.');
    if(stockIds.has(data.id))throw Error('The same batch stock appears more than once.');stockIds.add(data.id);

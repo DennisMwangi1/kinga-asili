@@ -5,7 +5,8 @@ import {readFile} from 'node:fs/promises';
 import ts from 'typescript';
 const compile=async path=>ts.transpileModule(await readFile(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
-const plansUrl=url(await compile('../lib/assistant/plans.ts'));
+const purchasesUrl=url(await compile('../lib/purchases.ts'));
+const plansUrl=url((await compile('../lib/assistant/plans.ts')).replaceAll("'@/lib/purchases'",JSON.stringify(purchasesUrl)));
 const {bulkHoldRequest,validateChanges,createPlanExecutor}=await import(plansUrl);
 const domainUrl=url(await compile('../shared/domain.ts'));
 const kingaSource=(await compile('../lib/assistant/kinga.ts')).replaceAll("'./plans'",JSON.stringify(plansUrl)).replaceAll("'@/lib/domain'",JSON.stringify(domainUrl));
@@ -79,8 +80,8 @@ test('duplicate stock IDs are rejected and orders receive stable signed idempote
 
 // Exercise the actual HTTP handler with an isolated database adapter; never call Supabase or Bedrock.
 const dbStub=url('export function requestDatabase(){return globalThis.__kingaPlanHttp.db;}');
-const bedrockStub=url('export function createBedrockClient(){throw Error("Unexpected model call in a bulk stock test");}');
-const routeSource=(await compile('../app/api/assistant/route.ts'))
+const bedrockStub=url('export function createBedrockClient(){return {messages:{create:async input=>{if(!globalThis.__kingaModel)throw Error("Unexpected model call");return globalThis.__kingaModel(input);}}};}');
+const routeSource=(await compile('../app/api/assistant/route.ts')).replaceAll("'@/lib/purchases'",JSON.stringify(purchasesUrl))
  .replaceAll("'@/lib/operation-errors'",JSON.stringify(url(await compile('../lib/operation-errors.ts'))))
  .replaceAll("'@/lib/supabase'",JSON.stringify(dbStub))
  .replaceAll("'@/lib/assistant/bedrock'",JSON.stringify(bedrockStub))
@@ -88,12 +89,13 @@ const routeSource=(await compile('../app/api/assistant/route.ts'))
  .replaceAll("'@/lib/assistant/plans'",JSON.stringify(plansUrl));
 const {POST}=await import(url(routeSource));
 function fixture(role='admin'){
- const stocks=new Map(snapshot.lots.map(stock=>[stock.id,{...stock}]));const state={writes:[],fail:null,role};
+ const stocks=new Map(snapshot.lots.map(stock=>[stock.id,{...stock}]));const state={writes:[],purchases:[],fail:null,role};
  const db={auth:{getUser:async()=>({data:{user:{id:'owner'}}})},from(table){
   let key;
   return {select(){return this;},eq(_,value){key=value;return this;},single:async()=>({data:{role:state.role}}),maybeSingle:async()=>({data:table==='stock_lots'?stocks.get(key)||null:null})};
  },async rpc(name,{p_data}={}){
-  if(name==='kinga_snapshot')return {data:{...snapshot,lots:[...stocks.values()]}};
+  if(name==='kinga_snapshot')return {data:{...snapshot,role,orders:[],batches:[],purchases:[],materials:[],payments:[],customers:[],profiles:[],reviews:[],bundles:[],audit:[],lots:[...stocks.values()]}};
+  if(name==='kinga_save_purchase'){state.purchases.push(p_data);state.writes.push(uuid(99));return {data:uuid(99)};}
   if(name!=='kinga_hold_lot')throw Error('Unexpected write '+name);
   state.writes.push(p_data.id);
   if(state.fail===p_data.id)return {error:{message:'This stock entry is temporarily blocked'}};
@@ -121,4 +123,30 @@ test('HTTP auto-accept cannot bypass role restrictions',async()=>{
  const prior=process.env.ASSISTANT_ROLES;process.env.ASSISTANT_ROLES='admin,cashier';
  try{const state=fixture('cashier');const response=await post({message:'Release all held stock',approvalMode:'auto'});assert.equal(response.status,400);assert.match((await response.json()).error,/outside your role/);assert.equal(state.writes.length,0);}
  finally{if(prior===undefined)delete process.env.ASSISTANT_ROLES;else process.env.ASSISTANT_ROLES=prior;}
+});
+
+test('cash expense proposals omit receipts and retain a stable signed request key',()=>{
+ const proposal=signProposal('admin-user','admin',{action:'save_purchase',summary:'Market expense',data:{kind:'expense',payment_method:'Cash',description:'Market supplies',amount:500,date:'2026-11-12',lines:[]}});
+ assert.equal(proposal.data.reference,null);assert.ok(proposal.data.idempotency_key);
+ assert.equal(verifyProposal(proposal.token,'admin-user','admin').data.idempotency_key,proposal.data.idempotency_key);
+ assert.throws(()=>signProposal('admin-user','admin',{action:'save_purchase',summary:'Missing reference',data:{kind:'expense',payment_method:'Bank',description:'Supplies',amount:500,date:'2026-11-12',lines:[]}}),/reference/);
+});
+
+test('pasted M-PESA evidence reaches the model and one manual acceptance records the expense',async()=>{
+ const priorModel=process.env.ASSISTANT_MODEL,priorRegion=process.env.AWS_REGION;
+ process.env.ASSISTANT_MODEL='isolated-test-model';process.env.AWS_REGION='test-region';
+ const state=fixture();let prompt;
+ globalThis.__kingaModel=async input=>{prompt=input;return {content:[{type:'tool_use',name:'prepare_change',input:{action:'save_purchase',summary:'Market supplies paid by M-PESA',data:{payment_method:'M-PESA',reference:'qkl1234567',amount:1250,date:'2026-11-12',supplier:'MARKET',description:'Market supplies',kind:'expense',lines:[]}}}]};};
+ try{
+  const response=await post({message:'Item: Market supplies. QKL1234567 Confirmed. Ksh1,250.00 paid to MARKET on 12/11/26 at 9:00 AM. New balance Ksh8,000.00.',approvalMode:'manual'});
+  const prepared=await response.json();assert.equal(response.status,200);assert.equal(state.purchases.length,0);assert.match(prompt.system,/EXTRACTED OUTGOING PAYMENT EVIDENCE/);assert.match(prompt.system,/"amount":1250/);
+  assert.equal(prepared.proposal.data.reference,'QKL1234567');assert.ok(prepared.proposal.data.idempotency_key);
+  const confirmed=await post({action:'execute',token:prepared.proposal.token});assert.equal((await confirmed.json()).execution.saved,1);assert.equal(state.purchases.length,1);assert.equal(state.purchases[0].amount,1250);
+ }finally{delete globalThis.__kingaModel;for(const [key,value] of [['ASSISTANT_MODEL',priorModel],['AWS_REGION',priorRegion]]){if(value===undefined)delete process.env[key];else process.env[key]=value;}}
+});
+
+test('batch proposals need no human reference and keep their request key across retries',()=>{
+ const proposal=signProposal('owner','admin',{action:'save_batch',summary:'Record GLT batch',data:{blend:'GLT',production_date:'2026-11-12',use_by:'2026-11-13',outputs:[],inputs:[]}});
+ assert.ok(proposal.data.idempotency_key);assert.equal(proposal.data.reference,undefined);
+ assert.equal(verifyProposal(proposal.token,'owner','admin').data.idempotency_key,proposal.data.idempotency_key);
 });

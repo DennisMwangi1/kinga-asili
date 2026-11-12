@@ -1,3 +1,4 @@
+import {validatePurchase} from '@/lib/purchases';
 import {operationError} from '@/lib/operation-errors';
 import {validateCustomer} from '@/lib/customer-validation';
 import { requestDatabase } from '@/lib/supabase';
@@ -31,6 +32,7 @@ export async function POST(request: Request) { try {
         if(action==='update_customer'&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(data.id||'')))return Response.json({error:'Select a customer to edit.'},{status:422});
         data={...checked.value,...(action==='update_customer'?{id:data.id}:{})};
     }
+    if(action==='save_purchase'){try{data=validatePurchase(data||{},true);}catch(error){return Response.json({error:(error as Error).message},{status:422});}}
     if(action==='import_customers'){
         if(!Array.isArray(data?.rows)||!data.rows.length||data.rows.length>1000)return Response.json({error:'Import between 1 and 1,000 customers.'},{status:422});
         const rows=[];

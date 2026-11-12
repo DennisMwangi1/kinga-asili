@@ -19,7 +19,7 @@ test('daily sales bucket midnight transactions in Nairobi and exclude requests a
 const validation=url(await compile('../lib/customer-validation.ts'));
 let calls=[];globalThis.__kingaCustomerTestDb={auth:{getUser:async()=>({data:{user:{id:'staff'}}})},rpc:async(name,payload)=>{calls.push({name,payload});return {data:'saved',error:null};}};
 const dbModule=url('export function requestDatabase(){return globalThis.__kingaCustomerTestDb}');
-const {POST}=await import(url((await compile('../app/api/operations/route.ts')).replaceAll("'@/lib/customer-validation'",JSON.stringify(validation)).replaceAll("'@/lib/operation-errors'",JSON.stringify(url(await compile('../lib/operation-errors.ts'))))
+const {POST}=await import(url((await compile('../app/api/operations/route.ts')).replaceAll("'@/lib/purchases'",JSON.stringify(url(await compile('../lib/purchases.ts')))).replaceAll("'@/lib/customer-validation'",JSON.stringify(validation)).replaceAll("'@/lib/operation-errors'",JSON.stringify(url(await compile('../lib/operation-errors.ts'))))
  .replaceAll("'@/lib/supabase'",JSON.stringify(dbModule))));
 const request=(action,data)=>new Request('http://localhost/api/operations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,data})});
 test('customer API rejects invalid data before calling audited RPCs',async()=>{calls=[];const response=await POST(request('save_customer',{...valid,phone:'invalid'}));assert.equal(response.status,422);assert.equal(calls.length,0);const invalidId=await POST(request('update_customer',{...valid,id:'bad'}));assert.equal(invalidId.status,422);assert.equal(calls.length,0);});
@@ -29,6 +29,6 @@ test('API reference conflicts stay specific to production, purchases and payment
  const original=globalThis.__kingaCustomerTestDb.rpc;
  try{for(const [action,constraint,word] of [['save_batch','batches_reference_key','batch'],['save_purchase','purchases_reference_key','purchase'],['record_payment','payments_reference_key','payment']]){
   globalThis.__kingaCustomerTestDb.rpc=async()=>({error:{code:'23505',message:`duplicate key value violates unique constraint "${constraint}"`}});
-  const response=await POST(request(action,{reference:'EXISTING'})),body=await response.json();assert.equal(response.status,409);assert.match(body.error,new RegExp(word,'i'));assert.ok(!body.error.includes('customer'));assert.ok(body.fieldErrors.reference);
+  const response=await POST(request(action,{reference:'EXISTING',payment_method:'Bank',kind:'expense',description:'Supplies',date:'2026-11-12',amount:500,lines:[],idempotency_key:'00000000-0000-4000-8000-000000000001'})),body=await response.json();assert.equal(response.status,409);assert.match(body.error,new RegExp(word,'i'));assert.ok(!body.error.includes('customer'));assert.ok(body.fieldErrors.reference);
  }}finally{globalThis.__kingaCustomerTestDb.rpc=original;}
 });

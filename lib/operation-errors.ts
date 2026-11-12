@@ -7,6 +7,7 @@ export function operationError(action:string,error:DatabaseError){
    products_blend_volume_ml_key:{message:'This blend and bottle size already exist. Edit the existing product instead.',field:'volume_ml'},
    customers_phone_key:{message:'A customer already uses this mobile number. Open that customer or use another number.',field:'phone'},
    batches_reference_key:{message:'This batch reference is already in use. Enter a different batch reference.',field:'reference'},
+   purchases_normalized_reference_key:{message:'This payment reference is already recorded on a purchase or expense. Check the existing record before adding another.',field:'reference'},
    purchases_reference_key:{message:'This purchase or expense reference is already in use. Enter a different reference.',field:'reference'},
    payments_reference_key:{message:'This payment reference has already been recorded. Check the existing payment before adding another.',field:'reference'},
    orders_reference_key:{message:'This order reference is already in use. Enter a different order reference.',field:'reference'},

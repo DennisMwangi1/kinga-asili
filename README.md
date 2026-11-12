@@ -35,3 +35,13 @@ The storefront and workspace must use the same Supabase environment variables. P
 ### Catalogue and storefront
 
 Apply `supabase/migrations/007_catalogue_management.sql`. It backfills the six current GLT/GOT variants without creating stock or orders. In **Settings → Catalogue & prices**, the owner can add bottle variants, edit product names, images, notes, descriptions and prices, or hide products with the storefront publication checkbox. Blend/size identify a variant and cannot be changed after creation; add a new variant instead. Prices remain indicative until confirmed by the owner. The storefront renders only active backend variants and reads their copy, photos and prices from `kinga_catalogue`, refreshing every 30 seconds while visible and when returning to the page. Active bundles only publish when their product is also active.
+
+### Cash purchases and M-PESA expense intake
+
+Apply `supabase/migrations/008_purchase_payment_methods.sql`. New purchases/expenses require a payment method. Cash may have no receipt reference; M-PESA and bank payments must have a real reference. Supplier/payee is optional; item/expense, amount and date remain required. Historical records keep their existing references and explicitly show an unknown payment method. Cash receipts still have internal IDs for traceable stock movements. Request keys prevent duplicate saves; payment references are unique ignoring case and surrounding spaces.
+
+In Kinga AI, paste an outgoing M-PESA message and provide the item/expense. The message can supply amount, date, recipient and reference; the assistant asks for missing information or conflicting amounts. Principal amounts are kept separate from fees and balances. Incoming/reversed payments must not be recorded as expenses. AI records remain subject to manual or auto acceptance, role restrictions and subsequent Verify & post. Material stock receipts still require explicit material quantities; an operating expense alone never adds inventory.
+
+### Automatic production references
+
+Apply `supabase/migrations/009_automatic_batch_references.sql`. Saving a production batch generates `BLEND-YYMMDD-NN`, for example `GLT-261112-01`: the first GLT batch produced on 12 Nov 2026. The counter is per blend and production date, skips existing matching references and grows past 99 without truncation. The database allocates references under the same transaction lock as production, and a request key makes retries return the same batch. Existing references are retained. The generated reference flows into stock lots and input/output movements when verified production is posted, and is shown in the batch list and save confirmation. It does not determine use-by dates; those still require staff approval.
