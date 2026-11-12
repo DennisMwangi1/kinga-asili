@@ -11,7 +11,8 @@
     "test:database": "node tests/database.mjs",
     "dev:storefront": "npm --prefix storefront run dev",
     "build:storefront": "npm --prefix storefront run build",
-    "build:all": "npm run build && npm run build:storefront"
+    "build:all": "npm run build && npm run build:storefront",
+    "dev:services": "npx --yes vercel@65.14.0 dev"
   },
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "0.36.0",
@@ -40,5 +41,8 @@
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "workspaces": [
+    "storefront"
+  ]
 }

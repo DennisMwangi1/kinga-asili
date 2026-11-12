@@ -10,6 +10,8 @@ The imported React frontend runs in the existing Next.js storefront host so the 
 - `app/api/catalogue/route.ts`: public catalogue.
 - `app/api/requests/route.ts`: order requests, with server-calculated prices.
 
-Run `npm run dev:storefront` from the repository root, then open http://localhost:3001. Build using `npm run build:storefront`. The existing storefront environment settings remain in place; use `.env.example` for a fresh environment. No service-role credentials are used.
+Run `npm run dev:storefront` from the repository root, then open http://localhost:3001/shop/. Build using `npm run build:storefront`. The existing storefront environment settings remain in place; use `.env.example` for a fresh environment. No service-role credentials are used.
 
 Prices and active pack options come from Kinga's catalogue, rather than the imported prototype's hardcoded prices. Requests are saved with a reference; staff confirm availability and delivery fees before collecting payment. The website does not collect M-PESA payments or reserve stock.
+
+On Vercel, use the root Services configuration rather than importing this folder as a separate project. The Next.js base path is `/shop`, so its APIs and static assets are also beneath `/shop`. Use `vercel dev` from the repository root for the unified local deployment.

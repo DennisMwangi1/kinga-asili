@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {useDialog} from "@shared/use-dialog";
 import {eatDate,type Product,type RecordRow} from "@shared/domain";
+import {storefrontPath} from "@/lib/urls";
 import {catalogueChoices,requestLines,type CartItem} from "@/lib/catalogue";
 
 type Blend = "GLT" | "GOT";
@@ -66,7 +67,7 @@ function LeafMark({ light = false }: { light?: boolean }) {
 export default function Storefront() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [products,setProducts]=useState<Product[]>([]),[bundles,setBundles]=useState<RecordRow[]>([]),[catalogueError,setCatalogueError]=useState(''),[loading,setLoading]=useState(true),[submitting,setSubmitting]=useState(false),[reference,setReference]=useState(''),[deliveryDate,setDeliveryDate]=useState(eatDate()),[requestKey,setRequestKey]=useState(()=>crypto.randomUUID());
-  const loadCatalogue=useCallback(async()=>{setLoading(true);setCatalogueError('');try{const response=await fetch('/api/catalogue');const result=await response.json();if(!response.ok)throw Error(result.error);setProducts(result.products);setBundles(result.bundles);}catch(error){setCatalogueError((error as Error).message);}finally{setLoading(false);}},[]);
+  const loadCatalogue=useCallback(async()=>{setLoading(true);setCatalogueError('');try{const response=await fetch(storefrontPath('api/catalogue'));const result=await response.json();if(!response.ok)throw Error(result.error);setProducts(result.products);setBundles(result.bundles);}catch(error){setCatalogueError((error as Error).message);}finally{setLoading(false);}},[]);
   useEffect(()=>{void loadCatalogue();},[loadCatalogue]);
   const [cartOpen, setCartOpen] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -117,7 +118,7 @@ export default function Storefront() {
     const phone=customer.phone.replace(/\D/g,'');
     if(customer.name.trim().length<2||customer.name.length>120||! /^[+\d\s().-]+$/.test(customer.phone)||! /^(?:0[17]\d{8}|254[17]\d{8})$/.test(phone)||customer.location.trim().length<2||customer.location.length>500||customer.notes.length>2000){setDetailsError('Enter your name, a valid Kenyan mobile number and delivery address.');return;}
     if(!/^\d{4}-\d{2}-\d{2}$/.test(deliveryDate)||deliveryDate<eatDate()||deliveryDate>eatDate(new Date(Date.now()+60*86400000))){setDetailsError('Choose a delivery date within the next 60 days.');return;}
-    setSubmitting(true);try{const response=await fetch('/api/requests',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({customer_name:customer.name.trim(),phone,location:customer.location.trim(),notes:customer.notes.trim(),delivery_date:deliveryDate,idempotency_key:requestKey,lines:requestLines(cart)})});const result=await response.json();if(!response.ok)throw Error(result.error);setReference(result.reference);setCart([]);}catch(error){setDetailsError((error as Error).message);}finally{setSubmitting(false);}
+    setSubmitting(true);try{const response=await fetch(storefrontPath('api/requests'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({customer_name:customer.name.trim(),phone,location:customer.location.trim(),notes:customer.notes.trim(),delivery_date:deliveryDate,idempotency_key:requestKey,lines:requestLines(cart)})});const result=await response.json();if(!response.ok)throw Error(result.error);setReference(result.reference);setCart([]);}catch(error){setDetailsError((error as Error).message);}finally{setSubmitting(false);}
   }
 
   return (
