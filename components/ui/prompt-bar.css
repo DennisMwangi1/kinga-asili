@@ -1,0 +1,55 @@
+.studio-prompt-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  width: 100%;
+  min-width: 0;
+  padding: var(--sp-3);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  color: var(--text-main);
+  transition: border-color var(--motion-state), box-shadow var(--motion-state);
+}
+.studio-prompt-bar:focus-within {
+  border-color: var(--accent);
+  outline: var(--focus-width) solid var(--accent);
+  outline-offset: var(--focus-offset);
+}
+.studio-prompt-bar textarea.studio-control {
+  width: 100%;
+  min-height: 44px;
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  resize: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+  box-shadow: none;
+}
+.studio-prompt-bar textarea.studio-control:focus-visible { outline: none; }
+.studio-prompt-bar-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1); }
+.studio-prompt-bar-count { margin-right: auto; color: var(--text-muted); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.studio-prompt-bar[data-character-count] .studio-prompt-bar-end { margin-left: 0; }
+/* Voice sits in the tools row: its buttons beside the + menu, and what it is doing on a line of its own under the row. */
+.studio-prompt-bar-tools .voice-controls { display: contents; }
+.studio-prompt-bar-tools .voice-status, .studio-prompt-bar-tools .voice-error, .studio-prompt-bar-tools .voice-disclosure { order: 10; flex-basis: 100%; }
+.studio-prompt-bar-action { display: flex; align-items: center; gap: var(--sp-2); }
+.studio-prompt-bar-action svg { flex: none; color: var(--text-muted); }
+.studio-prompt-bar[data-compact] { gap: var(--sp-1); padding: var(--sp-2) var(--sp-2) var(--sp-1) var(--sp-3); }
+.studio-prompt-bar[data-compact] textarea.studio-control { min-height: 22px; padding-top: var(--sp-2); }
+.studio-prompt-bar-label { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--text-muted); font: var(--text-metadata); }
+.studio-prompt-bar-label svg { color: var(--brand-ink); }
+.studio-prompt-bar-end { margin-left: auto; display: inline-flex; align-items: center; gap: var(--sp-2); }
+.studio-prompt-bar-send { border-radius: var(--radius-control); }
+.studio-prompt-bar-send:active:not(:disabled) { transform: scale(.96); }
+.studio-prompt-bar-positioner { z-index: var(--z-overlay); }
+@media (max-width: 767px), (pointer: coarse) { .studio-prompt-bar textarea.studio-control { font-size: 16px; } }
+@media (prefers-reduced-motion: reduce) {
+  .studio-prompt-bar { transition: none; }
+  .studio-prompt-bar-send:active:not(:disabled) { transform: none; }
+}

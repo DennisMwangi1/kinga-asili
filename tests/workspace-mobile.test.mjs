@@ -1,0 +1,34 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import ts from 'typescript';
+import {loadTs} from './load.mjs';
+const {customerPhone,validateCustomer}=await loadTs('../lib/customer-validation.ts');
+const {availableCreationActions,contextualTabs,moduleSections}=await loadTs('../lib/workspace-navigation.ts');
+const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
+const compile=async path=>ts.transpileModule(await readFile(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const domain=url(await compile('../shared/domain.ts'));
+const {salesSeries,chartTicks}=await import(url((await compile('../lib/sales-chart.ts')).replaceAll("'./domain'",JSON.stringify(domain))));
+const valid={name:'  Amina   Hassan ',phone:'0712345678',location:'Building 4\nKilimani',notes:'',marketing_opt_out:true};
+test('customer fields normalize and preserve multiline addresses and consent',()=>{const result=validateCustomer(valid);assert.deepEqual(result.errors,{});assert.equal(result.value.name,'Amina Hassan');assert.equal(result.value.phone,'254712345678');assert.equal(result.value.location,'Building 4\nKilimani');assert.equal(result.value.marketing_opt_out,true);assert.equal(customerPhone('+254 (712) 345-678'),'254712345678');assert.equal(customerPhone('0112345678'),'254112345678');});
+test('invalid names, phones and addresses are rejected, and optional addresses may be empty',()=>{for(const phone of ['', 'DEMO-CONTACT-005','abcdef0712345678','123','071234567890'])assert.ok(validateCustomer({...valid,phone}).errors.phone);assert.ok(validateCustomer({...valid,name:'A'}).errors.name);assert.ok(validateCustomer({...valid,location:'abc'}).errors.location);assert.ok(validateCustomer({...valid,location:'a'.repeat(501)}).errors.location);assert.ok(validateCustomer({...valid,notes:'a'.repeat(2001)}).errors.notes);assert.deepEqual(validateCustomer({...valid,location:''}).errors,{});assert.equal(validateCustomer({...valid,marketing_opt_out:false}).value.marketing_opt_out,false);});
+test('creation options reflect the same operational role restrictions',()=>{assert.deepEqual(availableCreationActions('driver').map(a=>a.id),['delivery-select']);assert.ok(availableCreationActions('stock_keeper').some(a=>a.id==='batch'));assert.ok(!availableCreationActions('stock_keeper').some(a=>a.id==='order'));assert.ok(!availableCreationActions('sales').some(a=>a.id==='expense'));assert.ok(!availableCreationActions('cashier').some(a=>a.id==='bundle'));assert.ok(availableCreationActions('admin').some(a=>a.id==='bundle'));});
+test('selected modules appear in the dock and expose routed settings and stock sections',()=>{const selected={label:'Settings',href:'/dashboard/settings',icon:'settings'};const tabs=contextualTabs('admin',selected);assert.equal(tabs.length,3);assert.equal(tabs.at(-1).label,'Settings');assert.equal(contextualTabs('admin',tabs[0]).length,3);assert.equal(moduleSections('settings').length,5);assert.ok(moduleSections('inventory').some(section=>section.href.endsWith('/movements')));assert.deepEqual(moduleSections('orders'),[]);});
+test('mobile chart ticks stay sparse and include both period endpoints',()=>{for(const count of [0,1,7,14,31]){const ticks=chartTicks(count,4);assert.ok(ticks.length<=4);if(count){assert.equal(ticks[0],0);assert.equal(ticks.at(-1),count-1);}assert.equal(new Set(ticks).size,ticks.length);}});
+test('daily sales bucket midnight transactions in Nairobi and exclude requests and cancellations',()=>{const orders=[{created_at:'2026-11-10T22:00:00Z',status:'confirmed',total:700},{created_at:'2026-11-11T01:00:00Z',status:'requested',total:100},{created_at:'2026-11-11T02:00:00Z',status:'cancelled',total:200}];assert.deepEqual(salesSeries(orders,'2026-11-10','2026-11-11'),{labels:['2026-11-10','2026-11-11'],points:[0,700]});assert.equal(salesSeries([],'2026-11-01','2026-12-20').labels.length,31);});
+const validation=url(await compile('../lib/customer-validation.ts'));
+let calls=[];globalThis.__kingaCustomerTestDb={auth:{getUser:async()=>({data:{user:{id:'staff'}}})},rpc:async(name,payload)=>{calls.push({name,payload});return {data:'saved',error:null};}};
+const dbModule=url('export function requestDatabase(){return globalThis.__kingaCustomerTestDb}');
+const {POST}=await import(url((await compile('../app/api/operations/route.ts')).replaceAll("'@/lib/customer-validation'",JSON.stringify(validation)).replaceAll("'@/lib/operation-errors'",JSON.stringify(url(await compile('../lib/operation-errors.ts'))))
+ .replaceAll("'@/lib/supabase'",JSON.stringify(dbModule))));
+const request=(action,data)=>new Request('http://localhost/api/operations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,data})});
+test('customer API rejects invalid data before calling audited RPCs',async()=>{calls=[];const response=await POST(request('save_customer',{...valid,phone:'invalid'}));assert.equal(response.status,422);assert.equal(calls.length,0);const invalidId=await POST(request('update_customer',{...valid,id:'bad'}));assert.equal(invalidId.status,422);assert.equal(calls.length,0);});
+test('customer edits dispatch normalized values to the role-protected update function',async()=>{calls=[];const id='00000000-0000-4000-8000-000000000001';const response=await POST(request('update_customer',{...valid,id}));assert.equal(response.status,200);assert.equal(calls[0].name,'kinga_update_customer');assert.equal(calls[0].payload.p_data.id,id);assert.equal(calls[0].payload.p_data.phone,'254712345678');});
+test('CSV validates every row before any writes and keeps marketing opted out',async()=>{calls=[];assert.equal((await POST(request('import_customers',{rows:[valid,{...valid,phone:'bad'}]}))).status,422);assert.equal(calls.length,0);assert.equal((await POST(request('import_customers',{rows:[{...valid,marketing_opt_out:false}]}))).status,200);assert.equal(calls[0].payload.p_data.rows[0].marketing_opt_out,true);});
+test('API reference conflicts stay specific to production, purchases and payments',async()=>{
+ const original=globalThis.__kingaCustomerTestDb.rpc;
+ try{for(const [action,constraint,word] of [['save_batch','batches_reference_key','batch'],['save_purchase','purchases_reference_key','purchase'],['record_payment','payments_reference_key','payment']]){
+  globalThis.__kingaCustomerTestDb.rpc=async()=>({error:{code:'23505',message:`duplicate key value violates unique constraint "${constraint}"`}});
+  const response=await POST(request(action,{reference:'EXISTING'})),body=await response.json();assert.equal(response.status,409);assert.match(body.error,new RegExp(word,'i'));assert.ok(!body.error.includes('customer'));assert.ok(body.fieldErrors.reference);
+ }}finally{globalThis.__kingaCustomerTestDb.rpc=original;}
+});

@@ -1,0 +1,44 @@
+{
+  "name": "kinga-asili",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint app components lib tests",
+    "test": "node --test tests/*.test.mjs",
+    "test:database": "node tests/database.mjs",
+    "dev:storefront": "npm --prefix storefront run dev",
+    "build:storefront": "npm --prefix storefront run build",
+    "build:all": "npm run build && npm run build:storefront"
+  },
+  "dependencies": {
+    "@anthropic-ai/bedrock-sdk": "0.36.0",
+    "@anthropic-ai/sdk": "^1.3.0",
+    "@aws-sdk/credential-providers": "3.1163.0",
+    "@base-ui/react": "^1.9.0",
+    "@fontsource-variable/bricolage-grotesque": "5.3.0",
+    "@fontsource-variable/dm-sans": "5.3.0",
+    "@fontsource-variable/plus-jakarta-sans": "5.3.0",
+    "@supabase/ssr": "^0.9.0",
+    "@supabase/supabase-js": "^2.100.0",
+    "@tanstack/react-query": "5.104.0",
+    "lucide-react": "1.48.0",
+    "next": "16.2.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

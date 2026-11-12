@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import ts from 'typescript';
+const compile=async path=>ts.transpileModule(await readFile(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
+const validation=url(await compile('../lib/customer-validation.ts'));
+const {customerMatches,orderCustomerValues,orderAmount}=await import(url((await compile('../lib/order-entry.ts')).replaceAll("'./customer-validation'",JSON.stringify(validation))));
+const customer={id:'customer-a',name:'Amina Hassan',phone:'254712345678',location:'Building 4\nKilimani'};
+test('customer search matches name, area and local or international phone formats',()=>{for(const query of ['amina','HASSAN','kilimani','0712345','+254 712','712345678',''])assert.equal(customerMatches(customer,query),true,query);for(const query of ['Westlands','Kamau','Hassan99999'])assert.equal(customerMatches(customer,query),false,query);});
+test('customer selection carries name, contact and multiline address, and new customer clears values',()=>{assert.deepEqual(orderCustomerValues(customer),customer);assert.equal(orderCustomerValues(),undefined);assert.equal(orderCustomerValues({...customer,phone:'0712345678'}).phone,'254712345678');assert.equal(orderCustomerValues({...customer,phone:'KA-C0001'}).phone,'');});
+test('cleared money inputs become zero only for calculations and submission',()=>{assert.equal(orderAmount('','Delivery fee'),0);assert.equal(orderAmount('0','Order discount'),0);assert.equal(orderAmount('125.50','Delivery fee'),125.5);for(const value of ['-1','NaN','Infinity','not an amount'])assert.throws(()=>orderAmount(value,'Delivery fee'),/zero or a positive amount/);});

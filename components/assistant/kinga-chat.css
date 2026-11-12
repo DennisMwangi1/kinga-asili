@@ -1,0 +1,106 @@
+/* KooKoo AI's chat surfaces, adapted to Kinga's palette and Studio sheet host. */
+.studio-sheet[data-variant='assistant']{
+ --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;
+ --text-xs:13px;--text-sm:16px;--color-border:var(--line);--color-border-strong:#bbc8ae;
+ --color-bg-card:var(--paper);--color-bg:var(--cream);--color-bg-hover:#edf1e6;
+ --color-text:var(--ink);--color-text-secondary:#4b5c4c;--color-text-muted:#6b7867;
+ --color-primary-50:#edf2e6;--color-primary-200:#d7e2ca;--color-primary-300:#b2c49e;
+ --color-primary-500:#617954;--color-primary-700:var(--olive);--color-success:#3d623a;--color-danger:var(--danger);
+}
+.kai-launcher.kinga-bot-launcher{width:56px;height:56px;min-height:56px;padding:0;display:grid;place-items:center;border-radius:50%;box-shadow:0 6px 24px #23332226}
+.studio-sheet[data-variant='assistant'] .studio-sheet-title{margin-right:auto;display:flex;align-items:center;color:var(--olive);font-size:20px;font-weight:700}
+.kai-icon-button{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--text-muted)}
+.kai-icon-button:hover{background:var(--surface-subtle)}
+.studio-sheet[data-variant='assistant'] .studio-sheet-content-header{padding:0}
+.studio-sheet[data-variant='assistant'] .kai-pills{padding:10px 16px;border-bottom:1px solid var(--line)}
+.kai-pills .kai-chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;min-height:36px;padding:6px 11px;text-decoration:none}
+.studio-sheet[data-variant='assistant'] .studio-sheet-body{flex:1 1 0%;min-height:0;overflow-y:auto;background:var(--cream);padding:16px;scroll-behavior:smooth}
+.studio-sheet[data-variant='assistant'] .studio-sheet-footer{flex:0 0 auto;padding:12px 16px max(12px,env(safe-area-inset-bottom));background:var(--paper)}
+.kai-thread{display:flex;flex-direction:column;gap:16px;min-width:0;max-width:100%}
+.order-bot__msg{max-width:88%;padding:12px 14px;border-radius:16px;font-size:16px;line-height:1.65;overflow-wrap:anywhere;min-width:0}
+.order-bot__msg--me{align-self:flex-end;background:var(--color-primary-50);border:1px solid var(--color-primary-200);border-bottom-right-radius:4px}
+.kai-user-text{margin:0;white-space:pre-wrap;font:inherit}
+.order-bot__msg--bot{align-self:flex-start;background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:4px;width:100%;max-width:100%}
+.kai-intro{padding:20px 2px 8px}
+.kai-intro-mark{width:48px;height:48px;display:grid;place-items:center;background:var(--color-primary-50);color:var(--olive);border:1px solid var(--color-primary-200);border-radius:15px;margin-bottom:16px}
+.kai-intro .kai-intro__title{font:600 24px/32px var(--font-family);margin:0 0 8px}
+.kai-intro .kai-intro__text{font-size:15px;line-height:1.7;margin-bottom:22px}
+.kai-suggest{gap:9px}
+.kai-suggest__item{min-height:48px;font-size:15px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-radius:12px;line-height:1.5}
+.kai-suggest__item span{flex-shrink:0;color:var(--text-muted)}
+.kai-composer-note{margin:8px 0 0;font-size:12px;color:var(--text-muted);text-align:center;line-height:1.5}
+.kai-copy-answer{display:inline-flex;align-items:center;gap:5px;min-height:36px;margin-top:8px;padding:5px 6px;border:0;color:var(--text-muted);font-size:12px}
+.kai-rich{font-size:16px;line-height:1.7;min-width:0;overflow-wrap:anywhere}
+.kai-rich p{margin:0 0 12px;white-space:normal}
+.kai-rich h1,.kai-rich h2,.kai-rich h3,.kai-rich h4,.kai-rich h5,.kai-rich h6{font-family:var(--font-family);font-weight:650;line-height:1.4;letter-spacing:0;margin:20px 0 10px;color:var(--ink)}
+.kai-rich h1,.kai-rich h2{font-size:20px}.kai-rich h3{font-size:18px}.kai-rich h4,.kai-rich h5,.kai-rich h6{font-size:16px}
+.kai-rich ul{list-style:disc}.kai-rich ol{list-style:decimal}
+.kai-rich ul,.kai-rich ol{padding-left:24px;margin:0 0 12px}
+.kai-rich li{margin:5px 0}.kai-rich li>p{margin-bottom:6px}
+.kai-rich li ul,.kai-rich li ol{margin-top:5px;margin-bottom:5px}
+.kai-rich ul.contains-task-list{list-style:none;padding-left:0}
+.kai-rich .task-list-item{display:flex;align-items:baseline;gap:8px}
+.studio-sheet .kai-rich input[type='checkbox']{width:16px;height:16px;min-height:16px;margin:0;pointer-events:none}
+.kai-rich blockquote{border-left:3px solid #b2c49e;margin:14px 0;padding:4px 0 4px 14px;color:var(--text-muted)}
+.kai-rich blockquote>p:last-child{margin-bottom:0}
+.kai-rich a{color:var(--olive);text-decoration:underline;text-underline-offset:3px}
+.kai-rich hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+.kai-rich :not(pre)>code{font:13px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;padding:2px 5px;border-radius:5px;background:#eef0e7;color:var(--ink);overflow-wrap:anywhere}
+.kai-code-block{margin:12px 0;min-width:0}
+.kai-code-block pre{font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre;overflow-x:auto;background:#edf0e7;border:1px solid var(--line);border-radius:10px;padding:14px;margin:0;max-width:100%}
+.kai-code-block pre code{font:inherit;white-space:inherit;background:none;padding:0}
+.kai-table-block{margin:14px 0;max-width:100%;min-width:0}
+.kai-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;max-width:100%;overscroll-behavior-x:contain}
+.kai-table{width:100%;border-collapse:collapse;font-size:14px}
+.kai-table th,.kai-table td{padding:9px 12px;min-width:90px;border-bottom:1px solid var(--line);white-space:normal;vertical-align:top;line-height:1.5;text-align:left}
+.kai-table th{background:#edf1e6;font-weight:600;color:var(--ink)}
+.kai-table tbody tr:last-child td{border-bottom:0}
+.kai-table td p{margin:0}
+.kai-table-copy{font-size:12px;min-height:36px;padding:5px 10px;margin-top:6px}
+.kai-proposal{margin-top:14px;border-color:#b2c49e;border-left-width:4px;background:var(--paper);gap:10px;padding:14px}
+.kai-proposal__title{font-size:16px}.kai-proposal .kai-rich{font-size:14px}
+.kai-proposal-details{margin:0;display:grid;gap:8px}
+.kai-proposal-details>div{border-top:1px solid var(--line);padding-top:8px;display:grid;gap:3px}
+.kai-proposal-details dt{font-size:12px;text-transform:capitalize;color:var(--text-muted)}
+.kai-proposal-details dd{margin:0;white-space:pre-wrap;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+.kai-proposal__actions{margin-top:4px;gap:8px}.kai-proposal__actions button{min-height:44px;font-size:14px}
+.kai-proposal__done{display:flex;gap:7px;align-items:center;margin:0}
+.kai-chat-error{padding:12px 14px;border:1px solid #e6c7bb;background:#fff1eb;color:var(--danger);font-size:14px;border-radius:12px;line-height:1.6}
+.kai-think{font-size:14px;padding:4px 0}.kai-stopped{font-size:14px;margin:0}
+/* KooKoo's desktop floating-panel dimensions; mobile keeps the shared bottom sheet. */
+@media(min-width:768px){
+ .studio-sheet-viewport[data-side='right'][data-variant='assistant']{align-items:flex-end;padding:0 24px 92px;pointer-events:none}
+ .studio-sheet[data-side='right'][data-variant='assistant']{width:min(460px,calc(100vw - 48px));height:min(680px,calc(100dvh - 120px));max-height:calc(100dvh - 120px);border-radius:18px;border:1px solid var(--line);pointer-events:auto}
+}
+@media(max-width:767px){
+ .studio-sheet[data-variant='assistant']{height:var(--sheet-max-vh)}
+ .studio-sheet[data-variant='assistant'] .studio-sheet-header{padding:4px 16px 12px;gap:8px}
+ .studio-sheet[data-variant='assistant'] .studio-sheet-body{padding:14px}
+ .studio-sheet[data-variant='assistant'] .studio-sheet-footer{padding:12px 14px max(14px,env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){.studio-sheet[data-variant='assistant'] .studio-sheet-body{scroll-behavior:auto}}
+.kai-approval-label{align-self:flex-start;border-radius:20px;padding:3px 8px;background:var(--brand-soft);font-size:12px;color:var(--olive)}
+.kai-change-list{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+.kai-change-list>li+li{padding-top:12px;border-top:1px solid var(--line)}
+.kai-change-summary{margin:0 0 6px;font-size:14px;line-height:1.6;font-weight:500}
+.kai-change-list details>summary{cursor:pointer;font-size:12px;color:var(--text-muted);min-height:36px;display:list-item;align-content:center}
+.kai-change-list details[open]>summary{margin-bottom:7px}
+.kai-change-result{display:flex;align-items:center;gap:6px;font-size:12px;margin:6px 0 0;color:#3d623a}
+.kai-change-result--failed{color:var(--danger);line-height:1.6}
+.kai-execution-summary{font-weight:600;font-size:14px;margin:3px 0 0}
+@media(max-width:767px){.kai-proposal__actions{flex-direction:column}.kai-proposal__actions button{width:100%}}
+
+/* Composer copied from Studio PromptBar, using the same options and toolbar layout. */
+.kai-composer{display:grid;gap:var(--sp-2);width:100%;margin:0}
+.kai-composer .studio-prompt-bar-tools,.kai-composer .studio-prompt-bar-end{column-gap:0}
+.studio-sheet .kai-composer .studio-prompt-bar textarea.studio-control{width:100%;min-height:22px;max-height:none;margin:0;padding:8px 0 0;border:0;border-radius:0;resize:none;background:transparent;color:inherit;font-family:inherit;font-size:16px;line-height:22px;box-shadow:none;outline:none}
+.kai-composer .kai-mode-trigger{gap:2px;padding-inline:4px;color:var(--text-muted);font:var(--text-metadata);font-size:12px}
+.kai-mode-trigger>svg{flex:none}
+.kai-mode-menu{width:min(300px,calc(100vw - 32px))}
+.studio-select-item.kai-mode-option{display:grid;grid-template-columns:16px minmax(0,1fr) 16px;align-items:start;gap:var(--sp-2);padding:var(--sp-3);white-space:normal}
+.kai-mode-option>svg,.kai-mode-check{margin-top:2px}
+.kai-mode-option-title{display:block;color:var(--text-main);font-weight:500}
+.kai-mode-note{display:block;margin-top:var(--sp-1);color:var(--text-muted);font:var(--text-metadata);line-height:1.6}
+.studio-prompt-bar-positioner{z-index:115}
+
+.kai-history{display:grid;gap:16px}.kai-history h2{font-size:18px;margin:0}.kai-history input{width:100%;min-width:0}.kai-history-list{display:grid;gap:10px}.kai-history-list>button{display:flex;align-items:center;gap:12px;width:100%;padding:14px;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:12px}.kai-history-list>button[aria-current=true]{border-color:#617954;background:#edf2e6}.kai-history-list>button>span:nth-child(2){flex:1;min-width:0}.kai-history-list strong{display:block;overflow-wrap:anywhere;font-size:15px;line-height:1.5;font-weight:500}.kai-history-list time{display:block;font-size:12px;margin-top:5px;color:var(--text-muted)}.kai-history-back{display:flex;align-items:center;justify-content:center;gap:8px;width:100%}

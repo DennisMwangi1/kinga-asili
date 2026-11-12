@@ -1,0 +1,124 @@
+/* Shared quiet controls: geometry stays tied to the approved tokens. */
+.studio-button, .studio-control {
+  font-family: var(--font-family);
+  font-size: 14px;
+  line-height: 20px;
+  border-radius: var(--radius-control);
+  transition: background var(--motion-state), border-color var(--motion-state), box-shadow var(--motion-state);
+}
+.studio-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: var(--control-height);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid transparent;
+  font-weight: var(--font-semibold);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.studio-button--primary { background: var(--accent-fill); color: var(--accent-fill-ink); box-shadow: 0 1px 2px rgb(14 26 43 / .12); }
+.studio-button--secondary { background: var(--surface); border-color: var(--surface-border); color: var(--text-main); }
+.studio-button--tertiary { color: var(--text-dim); background: transparent; }
+.studio-button--danger { color: var(--danger); background: var(--danger-soft); }
+.studio-button:hover:not(:disabled) { filter: brightness(.97); }
+.studio-button--secondary:hover:not(:disabled), .studio-button--tertiary:hover:not(:disabled) { background: var(--surface-subtle); }
+.studio-button:disabled, .studio-control:disabled { opacity: .5; cursor: not-allowed; }
+.studio-button--small { min-height: var(--control-height); padding-inline: var(--sp-2); }
+.studio-button--icon { width: var(--control-icon-target); padding: 0; }
+.studio-control {
+  height: var(--control-height);
+  min-width: 0;
+  max-width: 100%;
+  padding-inline: var(--sp-3);
+  border: 1px solid var(--control-border);
+  background: var(--surface);
+  color: var(--text-main);
+  font-weight: var(--font-regular);
+}
+.studio-control::placeholder { color: var(--text-muted); opacity: 1; }
+.studio-control:focus-visible, .studio-button:focus-visible {
+  outline: var(--focus-width) solid var(--accent);
+  outline-offset: var(--focus-offset);
+}
+.studio-control[aria-invalid='true'] { border-color: var(--danger); }
+.studio-status { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-bottom: var(--toolbar-records-gap); font: var(--text-body-desktop); color: var(--text-dim); }
+.studio-select-popup { z-index: var(--z-overlay); padding: var(--sp-1); background: var(--surface); color: var(--text-main); border: 1px solid var(--surface-border); border-radius: var(--radius-control); box-shadow: var(--shadow-overlay); min-width: var(--anchor-width); max-width: calc(100vw - 32px); }
+.studio-select-item { display: flex; align-items: center; gap: var(--sp-2); min-height: var(--control-height); padding: var(--sp-2) var(--sp-3); border-radius: var(--radius-control); font: var(--text-body-desktop); cursor: pointer; }
+.studio-select-item[data-highlighted], .studio-select-item[data-selected] { background: var(--accent-glow); color: var(--accent-ink); outline: none; }
+@keyframes studio-control-spin { to { transform: rotate(360deg); } }
+@media (max-width: 767px), (pointer: coarse) {
+  .studio-button, .studio-control, .studio-select-item { min-height: var(--control-mobile-target); }
+  input.studio-control, textarea.studio-control { font-size: 16px; }
+  .studio-button--icon { width: var(--control-mobile-target); }
+}
+/* The busy spinner of a button, and the loading shimmer (Skeleton). */
+.studio-button-spinner { flex: none; width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: studio-control-spin .65s linear infinite; }
+@keyframes andishi-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.andishi-skeleton { background: linear-gradient(90deg, var(--surface-subtle) 25%, var(--surface-border) 50%, var(--surface-subtle) 75%); background-size: 200% 100%; animation: andishi-shimmer 1.4s ease-in-out infinite; }
+/* Reduced motion: transitions end at once, and nothing loops. The spinner stays as a still
+   arc and the skeleton as a still block; aria-busy carries the state either way. */
+@media (prefers-reduced-motion: reduce) {
+  .studio-button, .studio-control { transition: none; }
+  .studio-button-spinner, .andishi-skeleton { animation: none; }
+}
+/* Keep select popups inside the visual viewport, above their parent sheet. */
+.studio-choice-trigger { display: inline-flex; align-items: center; gap: var(--sp-2); text-align: left; cursor: pointer; }
+.studio-choice-value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.studio-choice-icon, .studio-choice-check { flex-shrink: 0; }
+.studio-choice-positioner { z-index: calc(var(--z-overlay) + 1); width: var(--anchor-width); max-width: var(--available-width); }
+.studio-choice-positioner .studio-select-popup { min-width: 0; width: 100%; max-width: 100%; max-height: var(--available-height); overflow: hidden; }
+.studio-choice-list { overflow-y: auto; max-height: min(320px, var(--available-height)); overscroll-behavior: contain; }
+.studio-choice-label { min-width: 0; flex: 1; overflow-wrap: anywhere; white-space: normal; }
+.studio-select-item[data-disabled] { opacity: .5; cursor: not-allowed; }
+.studio-choice-positioner .studio-select-popup { display: flex; flex-direction: column; }
+.studio-choice-list { min-height: 0; max-height: min(320px, calc(var(--available-height) - var(--sp-2))); }
+.studio-check { appearance: none; width: var(--icon-inline); height: var(--icon-inline); flex-shrink: 0; border: 1px solid var(--control-border); border-radius: var(--sp-1); background: var(--surface); display: inline-grid; place-content: center; cursor: pointer; }
+.studio-check[type='radio'] { border-radius: 50%; }
+.studio-check:checked { border-color: var(--accent-fill); background: var(--accent-fill); }
+.studio-check:checked::before { content: ''; width: 8px; height: 8px; background: var(--accent-fill-ink); clip-path: polygon(0 45%, 20% 25%, 42% 50%, 80% 0, 100% 20%, 44% 100%); }
+.studio-check[type='radio']:checked::before { clip-path: none; border-radius: 50%; }
+label:has(> .studio-check) { min-height: var(--control-mobile-target); }
+.studio-check:focus-visible { outline: var(--focus-width) solid var(--accent); outline-offset: var(--focus-offset); }
+.studio-check:disabled { opacity: .5; cursor: not-allowed; }
+
+.studio-control[type='file'] { padding: 0; overflow: hidden; }
+.studio-control[type='file']::file-selector-button {
+  height: 100%;
+  min-height: inherit;
+  margin: 0 var(--sp-3) 0 0;
+  padding: 0 var(--sp-3);
+  border: 0;
+  border-right: 1px solid var(--control-border);
+  background: var(--surface);
+  color: var(--text-main);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* One input treatment for single-line, multiline and choice controls. */
+.studio-control:hover:not(:disabled):not(:focus-visible) { border-color: var(--control-border); }
+.studio-control:focus-visible { border-color: var(--accent); }
+textarea.studio-textarea { display: block; width: 100%; height: auto; max-width: var(--control-max-multiline); padding: var(--sp-2) var(--sp-3); resize: vertical; }
+.studio-image-picker { display: flex; flex-direction: column; gap: var(--sp-3); }
+.studio-image-previews { display: grid; grid-template-columns: repeat(auto-fill,minmax(var(--control-short),1fr)); gap: var(--sp-3); }
+.studio-image-preview { position: relative; min-width: 0; }
+.studio-image-preview img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-control); border: 1px solid var(--surface-border); }
+.studio-image-preview figcaption { overflow-wrap: anywhere; font: var(--text-metadata); color: var(--text-dim); }
+.studio-image-remove { position: absolute; right: var(--sp-1); top: var(--sp-1); }
+
+/* The typed combobox (ui/Combobox): one control, its open button inside the field's edge. */
+.studio-combobox { position: relative; display: flex; max-width: 100%; }
+.studio-combobox-input { width: 100%; padding-right: calc(var(--control-icon-target) + var(--sp-1)); }
+.studio-combobox-trigger { position: absolute; top: 0; right: 0; bottom: 0; display: inline-grid; place-content: center; width: var(--control-icon-target); border: 0; background: none; color: var(--text-muted); cursor: pointer; border-radius: var(--radius-control); }
+.studio-combobox-trigger:focus-visible { outline: var(--focus-width) solid var(--accent); outline-offset: calc(-1 * var(--focus-width)); }
+.studio-combobox-empty:not(:empty) { padding: var(--sp-2) var(--sp-3); font: var(--text-body-desktop); color: var(--text-muted); }
+@media (max-width: 767px), (pointer: coarse) {
+  .studio-combobox-trigger { width: var(--control-mobile-target); }
+  .studio-combobox-input { padding-right: var(--control-mobile-target); }
+}
+
+.studio-password-control { position: relative; min-width: 0; }
+.studio-password-control .studio-password-toggle { position: absolute; inset-inline-end: 2px; top: 50%; transform: translateY(-50%); }
+.studio-password-control input.studio-control { min-height: 44px; }

@@ -1,0 +1,8 @@
+node_modules
+.next
+.env*
+!.env.example
+*.tsbuildinfo
+
+# Generated staff access details are local and private.
+.local/

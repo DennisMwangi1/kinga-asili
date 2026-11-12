@@ -1,0 +1,546 @@
+@import "tailwindcss";
+  .checkout-backdrop {
+  position:fixed;
+  inset:0;
+  background:#17261d88;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+  backdrop-filter:blur(4px)}
+.shop {
+  background:#f6f2e8}
+.shop-announcement {
+  background:var(--olive);
+  color:#eee8d2;
+  text-align:center;
+  font-size:14px;
+  letter-spacing:1px;
+  padding:9px}
+.shop-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  max-width:1440px;
+  margin:auto;
+  padding:25px 65px}
+.shop-header nav {
+  display:flex;
+  gap:35px;
+  font-size:14px;
+  color:#687158}
+.shop-header .primary {
+  font-size:14px}
+.shop-hero {
+  max-width:1440px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  min-height:570px;
+  padding:20px 65px 45px;
+  gap:40px;
+  align-items:center}
+.shop-hero .eyebrow {
+  font-size:14px;
+  color:#9a9c78}
+.shop-hero h1 {
+  font:72px/1.02 Georgia,serif;
+  letter-spacing:-2px;
+  margin:23px 0}
+.shop-hero h1 em {
+  color:#7d8957;
+  font-weight:400}
+.shop-hero p {
+  font-size:14px;
+  line-height:1.9;
+  color:#838772;
+  margin-bottom:28px}
+.hero-notes {
+  display:flex;
+  gap:18px;
+  font-size:14px;
+  color:#8c9279;
+  margin-top:37px}
+.hero-art {
+  background:#e5e4ce url('/images/botanical.jpg') center/cover;
+  position:relative;
+  border-radius:180px 180px 8px 8px;
+  height:500px;
+  overflow:hidden}
+.hero-art:before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:#e2deb333}
+.hero-bottle {
+  position:absolute;
+  width:35%;
+  height:66%;
+  object-fit:cover;
+  object-position:center;
+  border-radius:90px 90px 25px 25px;
+  box-shadow:0 15px 40px #23332255}
+.hero-bottle.one {
+  left:14%;
+  top:21%;
+  transform:rotate(-12deg)}
+.hero-bottle.two {
+  right:12%;
+  top:13%;
+  transform:rotate(12deg)}
+.bottle-label {
+  position:absolute;
+  top:7%;
+  left:20%;
+  color:#f8f2d5;
+  font-size:14px;
+  letter-spacing:2px;
+  z-index:2}
+.hero-seal {
+  position:absolute;
+  right:8%;
+  bottom:9%;
+  background:#f1e5bd;
+  color:#737647;
+  border-radius:50%;
+  height:99px;
+  width:99px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+  font-size:14px;
+  letter-spacing:1.5px;
+  line-height:1.4;
+  transform:rotate(10deg)}
+.hero-seal strong {
+  font:19px Georgia,serif;
+  letter-spacing:-.5px}
+.hero-art-bottom {
+  position:absolute;
+  bottom:20px;
+  left:35px;
+  font-size:14px;
+  color:#f5efce;
+  letter-spacing:2px}
+.ingredient-ribbon {
+  background:#e9e8d5;
+  border-top:1px solid #daddc4;
+  border-bottom:1px solid #daddc4;
+  display:flex;
+  align-items:center;
+  justify-content:space-evenly;
+  padding:19px;
+  gap:20px;
+  font-size:14px;
+  letter-spacing:2px;
+  color:#788263}
+.ingredient-ribbon i {
+  font-size:19px;
+  font-style:normal;
+  color:#aaa66b}
+.shop-blends {
+  max-width:1440px;
+  margin:auto;
+  padding:65px}
+.shop-blends h2,.shop-how h2 {
+  font:38px Georgia,serif;
+  margin:0}
+.shop-blends .tabs {
+  margin:0}
+.shop-product-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:30px;
+  margin-top:30px}
+.shop-product {
+  display:grid;
+  grid-template-columns:43% 57%;
+  background:#efeddd;
+  border:1px solid #e5e2ce;
+  border-radius:12px;
+  overflow:hidden;
+  min-height:320px}
+.shop-product.orange {
+  background:#f0e4cd}
+.shop-product-image {
+  position:relative;
+  overflow:hidden}
+.shop-product-image img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center}
+.shop-product-image span {
+  position:absolute;
+  bottom:20px;
+  left:15px;
+  right:15px;
+  font-size:14px;
+  color:#f9f3d4;
+  letter-spacing:1.5px}
+.shop-product>div:last-child {
+  padding:30px 24px;
+  display:flex;
+  flex-direction:column}
+.shop-product h3 {
+  font:28px/1.2 Georgia,serif;
+  margin:4px 0 15px}
+.shop-product p {
+  font-size:14px;
+  line-height:1.8}
+.shop-product .eyebrow {
+  font-size:14px}
+.product-bottom {
+  margin-top:auto}
+.product-bottom>strong {
+  font-size:16px;
+  font-weight:500;
+  display:block}
+.product-bottom small {
+  display:block;
+  font-size:14px;
+  color:#97967b;
+  margin-top:3px}
+.product-bottom button {
+  margin-top:14px;
+  font-size:14px;
+  border-color:#adb296}
+.shop-story {
+  background:#e6e8d8;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:65px;
+  padding:65px;
+  align-items:center}
+.shop-story>img {
+  width:100%;
+  height:330px;
+  object-fit:cover;
+  border-radius:8px}
+.shop-story>div {
+  max-width:410px}
+.shop-story h2 {
+  font:42px/1.2 Georgia,serif}
+.shop-story h2 em {
+  color:#7d8957}
+.shop-story p {
+  font-size:14px;
+  line-height:1.9}
+.shop-how {
+  text-align:center;
+  padding:70px 65px}
+.shop-how>div {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:60px;
+  max-width:1100px;
+  margin:40px auto}
+.shop-how article>span {
+  font:28px Georgia,serif;
+  color:#b2ab7d}
+.shop-how h3 {
+  font-size:16px;
+  margin:13px 0}
+.shop-how p {
+  font-size:14px;
+  line-height:1.8}
+.shop-footer {
+  background:var(--olive);
+  color:#e7e7cc;
+  display:flex;
+  align-items:center;
+  gap:25px;
+  padding:40px 65px;
+  flex-wrap:wrap}
+.shop-footer p {
+  font-size:14px;
+  margin:0 auto 0 10px;
+  color:#bbc5ad}
+.shop-footer>a {
+  font-size:14px}
+.shop-footer>small {
+  width:100%;
+  font-size:14px;
+  border-top:1px solid #5a6b4e;
+  padding-top:20px;
+  color:#9dad90}
+.checkout {
+  width:1100px;
+  max-height:94vh;
+  overflow:auto;
+  background:var(--cream);
+  border-radius:15px;
+  padding:35px}
+.checkout h1 {
+  font-size:34px;
+  margin:25px 0}
+.checkout .panel {
+  background:var(--paper)}
+@media(min-width:1600px) {
+  .shop-hero h1 {
+  font-size:84px}
+}
+@media(max-width:1150px) {
+  .shop-header {
+  padding:22px 35px}
+.shop-hero {
+  padding:20px 35px 40px;
+  gap:25px}
+.shop-hero h1 {
+  font-size:64px}
+.shop-hero p br {
+  display:none}
+.shop-blends {
+  padding:45px 35px}
+.shop-product h3 {
+  font-size:23px}
+.hero-notes {
+  gap:10px;
+  font-size:14px}
+}
+@media(max-width:900px) {
+  .shop-header nav {
+  gap:18px}
+.hero-art {
+  height:420px}
+.shop-hero h1 {
+  font-size:53px}
+.hero-notes {
+  flex-direction:column;
+  gap:5px}
+.shop-product-grid {
+  gap:15px}
+.shop-product {
+  grid-template-columns:40% 60%}
+.shop-product>div:last-child {
+  padding:20px 15px}
+.shop-product h3 {
+  font-size:21px}
+.shop-story {
+  gap:30px;
+  padding:40px}
+.shop-how {
+  padding:50px 30px}
+.shop-how>div {
+  gap:25px}
+}
+@media(max-width:650px) {
+  .checkout-backdrop {
+  padding:8px}
+.shop-header {
+  padding:20px;
+  gap:12px}
+.shop-header .brand {
+  font-size:15px;
+  letter-spacing:1px}
+.shop-header .brand small {
+  font-size:14px}
+.shop-header nav {
+  display:none}
+.shop-header .primary {
+  font-size:14px;
+  padding:10px 12px}
+.shop-announcement {
+  font-size:14px;
+  letter-spacing:.5px}
+.shop-hero {
+  grid-template-columns:1fr;
+  padding:25px 23px 35px;
+  gap:28px}
+.shop-hero h1 {
+  font-size:63px;
+  line-height:1.04;
+  margin:18px 0}
+.shop-hero .eyebrow {
+  font-size:14px}
+.shop-hero p {
+  font-size:14px}
+.hero-notes {
+  flex-direction:row;
+  justify-content:space-between;
+  font-size:14px;
+  margin-top:25px}
+.hero-art {
+  height:400px;
+  border-radius:150px 150px 6px 6px}
+.ingredient-ribbon {
+  font-size:14px;
+  gap:12px;
+  padding:15px 10px;
+  overflow:hidden;
+  white-space:nowrap}
+.ingredient-ribbon span:last-child {
+  display:none}
+.ingredient-ribbon i {
+  font-size:14px}
+.shop-blends {
+  padding:40px 20px}
+.shop-blends h2 {
+  font-size:30px}
+.shop-blends .eyebrow {
+  font-size:14px}
+.shop-product-grid {
+  grid-template-columns:1fr;
+  margin-top:22px;
+  gap:17px}
+.shop-product {
+  min-height:300px}
+.shop-product h3 {
+  font-size:29px}
+.shop-product>div:last-child {
+  padding:25px 20px}
+.shop-story {
+  grid-template-columns:1fr;
+  padding:30px 22px;
+  gap:30px}
+.shop-story h2 {
+  font-size:36px}
+.shop-story>img {
+  height:250px}
+.shop-how {
+  padding:45px 25px}
+.shop-how h2 {
+  font-size:31px}
+.shop-how>div {
+  grid-template-columns:1fr;
+  gap:15px}
+.shop-how article {
+  border-top:1px solid #dce0cb;
+  padding-top:15px}
+.shop-footer {
+  padding:35px 25px;
+  gap:20px}
+.shop-footer p {
+  width:100%;
+  margin:0}
+.shop-footer .brand {
+  font-size:20px}
+.checkout {
+  padding:22px 15px;
+  max-height:96vh}
+.checkout h1 {
+  font-size:28px}
+}
+@media(max-width:650px) {
+  .checkout .mobile-order-total {
+  z-index:110}
+}
+.shop-header nav {
+  font-size:16px;
+  gap:28px}
+.shop-announcement {
+  font-size:14px}
+.shop-header .primary {
+  font-size:15px}
+.shop-hero p {
+  font-size:18px;
+  line-height:1.75}
+.shop-hero .eyebrow {
+  font-size:12px}
+.hero-notes {
+  font-size:14px;
+  flex-wrap:wrap;
+  gap:12px}
+.bottle-label,.hero-art-bottom {
+  font-size:12px}
+.hero-art-bottom {
+  left:20px;
+  right:20px;
+  letter-spacing:1px}
+.shop-product-image span {
+  font-size:12px;
+  line-height:1.7}
+.shop-product p {
+  font-size:16px}
+.shop-product .eyebrow {
+  font-size:12px}
+.product-bottom small {
+  font-size:14px}
+.product-bottom button {
+  font-size:15px}
+.shop-story p {
+  font-size:18px}
+.shop-how p {
+  font-size:16px}
+.shop-how h3 {
+  font-size:21px}
+.shop-footer p,.shop-footer>a {
+  font-size:15px}
+.shop-footer>small {
+  font-size:13px}
+.shop-product {
+  grid-template-columns:40% 60%}
+.hero-seal {
+  width:120px;
+  height:120px;
+  font-size:12px}
+.hero-seal strong {
+  font-size:24px}
+.hero-art {
+  min-width:0}
+.shop-blends .tabs button {
+  font-size:15px}
+.checkout {
+  width:1180px}
+.checkout .section-title .brand small {
+  font-size:10px}
+@media(max-width:900px) {
+  .shop-product-grid {
+  grid-template-columns:1fr}
+.shop-header nav {
+  display:none}
+.shop-product {
+  min-height:360px}
+}
+@media(max-width:650px) {
+  .shop-announcement {
+  font-size:13px}
+.shop-header {
+  flex-wrap:wrap;
+  gap:16px}
+.shop-header .brand {
+  font-size:19px}
+.shop-header .primary {
+  font-size:14px}
+.shop-hero .eyebrow {
+  font-size:12px}
+.shop-hero h1 {
+  font-size:56px}
+.shop-hero p {
+  font-size:17px}
+.hero-notes {
+  font-size:13px;
+  gap:12px;
+  justify-content:flex-start}
+.shop-product p {
+  font-size:16px}
+.shop-product h3 {
+  font-size:27px}
+.shop-product>div:last-child {
+  padding:24px 15px}
+.shop-blends .eyebrow {
+  font-size:12px}
+.product-bottom button {
+  font-size:14px;
+  white-space:normal}
+.shop-story p {
+  font-size:17px}
+.shop-how p {
+  font-size:16px}
+.shop-footer p {
+  font-size:15px}
+.checkout h1 {
+  font-size:30px}
+.checkout .section-title {
+  align-items:flex-start}
+.shop-product-image span {
+  font-size:11px}
+.hero-art-bottom {
+  font-size:11px}
+.hero-seal {
+  right:4%;
+  bottom:10%}
+}
+.text-button {border:0;padding:0;color:var(--olive);font-size:14px}

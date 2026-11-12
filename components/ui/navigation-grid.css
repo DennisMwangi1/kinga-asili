@@ -1,0 +1,52 @@
+.studio-navigation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-5) var(--sp-2);
+  padding-block: var(--sp-3);
+}
+.studio-navigation-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+  min-height: var(--control-mobile-target);
+  padding: var(--sp-2) var(--sp-1);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text-dim);
+  transition: background var(--motion-state), border-color var(--motion-state);
+}
+.studio-navigation-tile-icon {
+  display: grid;
+  place-items: center;
+  width: calc(var(--sp-8) * 2);
+  height: calc(var(--sp-8) * 2);
+  max-width: 100%;
+  border-radius: 12px;
+  background: var(--surface-subtle);
+  color: var(--text-muted);
+  transition: background var(--motion-state), color var(--motion-state);
+}
+.studio-navigation-tile-icon svg { width: var(--sp-6); height: var(--sp-6); }
+.studio-navigation-tile-label {
+  font: var(--text-body-desktop);
+  font-weight: 500;
+  text-align: center;
+  overflow-wrap: anywhere;
+  width: 100%;
+}
+.studio-navigation-tile:hover { background: var(--surface-subtle); }
+.studio-navigation-tile[aria-current='page'] {
+  background: var(--surface);
+  border-color: var(--surface-border);
+  box-shadow: 0 1px 2px rgba(14, 26, 43, 0.05);
+  color: var(--text-main);
+}
+.studio-navigation-tile[aria-current='page'] .studio-navigation-tile-icon { color: var(--brand-ink, #B23E00); }
+.studio-navigation-tile[aria-current='page'] .studio-navigation-tile-label { color: var(--text-main); font-weight: var(--font-semibold); }
+.studio-navigation-tile:focus-visible { outline: var(--focus-width) solid var(--accent); outline-offset: var(--focus-offset); }
+.studio-sheet[data-variant='navigation'] .studio-sheet-header { border-bottom: 0; }
+.studio-sheet[data-variant='navigation'] .studio-sheet-header button { border-radius: 50%; background: var(--surface-subtle); }
+.studio-menu-tour { margin-top: var(--sp-4); }

@@ -1,0 +1,18 @@
+.studio-action-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-6);
+  background: var(--surface);
+  border-top: 1px solid var(--surface-border);
+  z-index: var(--z-sticky);
+}
+.studio-sheet-footer .studio-action-footer {
+  position: static;
+  padding: 0;
+  border: 0;
+}
