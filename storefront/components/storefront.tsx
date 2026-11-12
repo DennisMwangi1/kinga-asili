@@ -1,27 +1,511 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
-import Link from 'next/link';
-import Brand from './brand';
-import { useDialog } from '@shared/use-dialog';
-import { OrderForm } from './order-form';
-import { type Product, type RecordRow, money } from '@shared/domain';
+import { useCallback, useEffect, useState } from "react";
+import {useDialog} from "@shared/use-dialog";
+import {eatDate,type Product,type RecordRow} from "@shared/domain";
+import {catalogueChoices,requestLines,type CartItem} from "@/lib/catalogue";
+
+type Blend = "GLT" | "GOT";
+
+type CustomerDetails = {
+  name: string;
+  phone: string;
+  location: string;
+  notes: string;
+};
+
+const blends = [
+  {
+    id: "GLT" as Blend,
+    name: "Ginger · Lemon · Turmeric",
+    note: "Bright, zesty & grounding",
+    description:
+      "A lively lemon-led blend with the warming depth of ginger and turmeric. Your golden reset, bottled.",
+    image:
+      "https://images.unsplash.com/photo-1678890565859-a2dadf52a48f?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=1400",
+    color: "#d8b331",
+  },
+  {
+    id: "GOT" as Blend,
+    name: "Ginger · Orange · Turmeric",
+    note: "Juicy, mellow & warming",
+    description:
+      "A smooth, citrus-rich blend balancing sweet orange with fresh ginger and earthy turmeric.",
+    image:
+      "https://images.unsplash.com/photo-1787020546612-eafe4080ce43?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=1400",
+    color: "#dc7938",
+  },
+];
+
+function ArrowIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 12h14M14 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function BagIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6.8 8h10.4l1 12H5.8l1-12Z" />
+      <path d="M9 9V6a3 3 0 0 1 6 0v3" />
+    </svg>
+  );
+}
+
+function LeafMark({ light = false }: { light?: boolean }) {
+  return (
+    <span className={`leaf-mark ${light ? "light" : ""}`} aria-hidden="true">
+      <span />
+      <span />
+      <span />
+    </span>
+  );
+}
+
 export default function Storefront() {
-    const [products, setProducts] = useState<Product[]>([]), [bundles, setBundles] = useState<RecordRow[]>([]), [error, setError] = useState(''), [checkout, setCheckout] = useState(false), [reference, setReference] = useState(''), [busy, setBusy] = useState(false), [size, setSize] = useState(120);
-    const closeDialog = useCallback(() => setCheckout(false), []);
-    useDialog(checkout, closeDialog);
-    useEffect(() => { void fetch('/api/catalogue').then(async (r) => { const d = await r.json(); if (!r.ok)
-        throw Error(d.error); setProducts(d.products); setBundles(d.bundles); }).catch(e => setError(e.message)); }, []);
-    return <div className="shop"><div className="shop-announcement">Thoughtfully blended in Nairobi. Made for your everyday.</div><header className="shop-header"><Link href="/"><Brand /></Link><nav><a href="#blends">Our blends</a><a href="#story">Our story</a><a href="#how">How to order</a></nav><button className="primary" onClick={() => setCheckout(true)}>Find your blend ↗</button></header><main><section className="shop-hero"><div><span className="eyebrow">NATURAL INGREDIENTS. EVERYDAY RITUALS.</span><h1>A little nature.<br />A little care.<br /><em>Every day.</em></h1><p>Fresh ginger. Golden turmeric. A bright touch of citrus.<br />Thoughtfully made blends for your everyday rhythm.</p><a className="primary" href="#blends">Meet your everyday blend →</a><div className="hero-notes"><span>✳ Natural ingredients</span><span>◉ Cold-pressed blends</span><span>↗ Made in Nairobi</span></div></div><div className="hero-art"><span className="bottle-label">ROOTED IN NATURE<br />CRAFTED WITH CARE</span><img className="hero-bottle one" src="/images/glt.jpg" alt="Kinga Asili Ginger Lemon Turmeric bottle"/><img className="hero-bottle two" src="/images/got.jpg" alt="Kinga Asili Ginger Orange Turmeric bottle"/><span className="hero-seal">THE ART OF<br /><strong>everyday</strong><br />CARE</span><span className="hero-art-bottom">GLT & GOT / YOUR DAILY DOSE OF GOODNESS</span></div></section><div className="ingredient-ribbon"><span>GINGER</span><i>✳</i><span>LEMON</span><i>✳</i><span>TURMERIC</span><i>✳</i><span>ORANGE</span><i>✳</i><span>A LITTLE EVERYDAY CARE</span></div><section id="blends" className="shop-blends"><div className="section-title"><div><span className="eyebrow">FIND YOUR EVERYDAY FAVOURITE</span><h2>Two blends. Naturally good.</h2></div><div className="tabs">{[60, 120, 450].map(v => <button key={v} className={v === size ? 'selected' : ''} onClick={() => setSize(v)}>{v} ml</button>)}</div></div>{error && <div role="alert" className="info-strip">{error} <a href="https://wa.me/254712866898">Contact Kinga on WhatsApp ↗</a></div>}<div className="shop-product-grid">{['GLT', 'GOT'].map((b, i) => { const p = products.find(p => p.blend === b && p.volume_ml === size); return <article className={'shop-product ' + (i ? 'orange' : 'lemon')} key={b}><div className="shop-product-image"><img src={'/images/' + b.toLowerCase() + '.jpg'} alt={b === 'GLT' ? 'Lemon blend bottle' : 'Orange blend bottle'}/><span>{i ? 'SUNSHINE IN A BOTTLE' : 'BRIGHT, WARM & EARTHY'}</span></div><div><span className="eyebrow">{b} / {size} ML</span><h3>Ginger, {i ? 'orange' : 'lemon'}<br />& turmeric.</h3><p>{i ? 'Citrusy freshness meets the distinctive warmth of ginger.' : 'Bright lemon, warming ginger and earthy notes of turmeric.'}</p><div className="product-bottom"><strong>{p ? money(p.price) : 'Ask for pricing'}<small>{p && !p.price_confirmed ? 'Indicative retail price' : 'Per bottle'}</small></strong><button disabled={!p} onClick={() => setCheckout(true)}>Request your blend ＋</button></div></div></article>; })}</div></section><section className="shop-story" id="story"><img src="/images/ginger.jpg" alt="Fresh cut ginger on a wooden board"/><div><span className="eyebrow">THE ART OF EVERYDAY CARE</span><h2>Rooted in nature.<br /><em>Woven into life.</em></h2><p>Care is in the little things. The habits we return to, the ingredients we choose, and the moments we make for ourselves.</p><p>That is the heart of Kinga Asili. Natural, cold-pressed blends that fit into your everyday routine.</p></div></section><section className="shop-how" id="how"><span className="eyebrow">YOUR ORDER, MADE SIMPLE</span><h2>A few easy steps to your doorstep.</h2><div>{[['01', 'Choose your blend', 'Tell us your blend, size, quantity and delivery location.'], ['02', 'We confirm the details', 'Our team confirms stock, your delivery fee and payment details.'], ['03', 'Pay, then we deliver', 'Once payment is confirmed, we pack your order and arrange a rider.']].map(([n, h, p]) => <article key={n}><span>{n}</span><h3>{h}</h3><p>{p}</p></article>)}</div><button className="primary" onClick={() => setCheckout(true)}>Start an order request →</button></section></main><footer className="shop-footer"><Brand light/><p>A little nature. A little care. Every day.</p><a href="https://www.instagram.com/kingaasili/" target="_blank" rel="noreferrer">Instagram ↗</a><a href="https://wa.me/254712866898" target="_blank" rel="noreferrer">WhatsApp ↗</a><a href={(process.env.NEXT_PUBLIC_OPERATIONS_URL || 'http://localhost:3000') + '/login'}>Staff workspace ↗</a><small>© {new Date().getFullYear()} Kinga Asili · Nairobi, Kenya</small></footer>{checkout && <div className="checkout-backdrop"><section className="checkout" role="dialog" aria-modal="true" aria-labelledby="checkout-title"><div className="section-title"><Brand /><button onClick={() => { setCheckout(false); setReference(''); }} aria-label="Close order request">Close ×</button></div><h1 id="checkout-title">{reference ? 'A little goodness is on its way.' : 'Let’s find your everyday blend.'}</h1>{reference ? <div className="panel"><h2>{reference}</h2><p>Your request has been received. Our team will confirm stock, delivery and payment details before preparing your order.</p><p>No payment has been collected.</p></div> : <>{error && <p role="alert" className="error">{error}</p>}<OrderForm products={products} bundles={bundles} busy={busy} onSave={async (d) => { setBusy(true); try {
-            const r = await fetch('/api/requests', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d) });
-            const result = await r.json();
-            if (!r.ok)
-                throw Error(result.error);
-            setReference(result.reference);
-    }
-    catch (e) {
-        setError((e as Error).message);
-    }
-    finally {
-        setBusy(false);
-    } }}/></>}</section></div>}</div>;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [products,setProducts]=useState<Product[]>([]),[bundles,setBundles]=useState<RecordRow[]>([]),[catalogueError,setCatalogueError]=useState(''),[loading,setLoading]=useState(true),[submitting,setSubmitting]=useState(false),[reference,setReference]=useState(''),[deliveryDate,setDeliveryDate]=useState(eatDate()),[requestKey,setRequestKey]=useState(()=>crypto.randomUUID());
+  const loadCatalogue=useCallback(async()=>{setLoading(true);setCatalogueError('');try{const response=await fetch('/api/catalogue');const result=await response.json();if(!response.ok)throw Error(result.error);setProducts(result.products);setBundles(result.bundles);}catch(error){setCatalogueError((error as Error).message);}finally{setLoading(false);}},[]);
+  useEffect(()=>{void loadCatalogue();},[loadCatalogue]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [customer, setCustomer] = useState<CustomerDetails>({
+    name: "",
+    phone: "",
+    location: "",
+    notes: "",
+  });
+  const [detailsError, setDetailsError] = useState("");
+  const [selectedSizes, setSelectedSizes] = useState<Record<Blend, number>>({
+    GLT: 0,
+    GOT: 0,
+  });
+
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const closeCart=useCallback(()=>{if(!submitting)setCartOpen(false);},[submitting]);
+  useDialog(cartOpen,closeCart);
+  function addToCart(blend:Blend){
+    const choices=catalogueChoices(products,bundles,blend);const choice=choices[selectedSizes[blend]]||choices[0];if(!choice)return;
+    if(reference){setReference('');setRequestKey(crypto.randomUUID());}
+    setCart(current=>{const match=current.find(item=>item.key===choice.key);return match?current.map(item=>item.key===choice.key?{...item,quantity:item.quantity+1}:item):[...current,{...choice,blend,size:choice.label,quantity:1}];});setCartOpen(true);setDetailsError('');
+  }
+
+  function changeQuantity(index: number, amount: number) {
+    setCart((current) =>
+      current
+        .map((item, i) =>
+          i === index ? { ...item, quantity: Math.max(0, item.quantity + amount) } : item,
+        )
+        .filter((item) => item.quantity > 0),
+    );
+  }
+
+  function scrollToShop() {
+    document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function updateCustomer(field: keyof CustomerDetails, value: string) {
+    setCustomer((current) => ({ ...current, [field]: value }));
+    if (detailsError) setDetailsError("");
+  }
+
+  async function submitOrder(){
+    if(submitting)return;setDetailsError('');
+    const phone=customer.phone.replace(/\D/g,'');
+    if(customer.name.trim().length<2||customer.name.length>120||! /^[+\d\s().-]+$/.test(customer.phone)||! /^(?:0[17]\d{8}|254[17]\d{8})$/.test(phone)||customer.location.trim().length<2||customer.location.length>500||customer.notes.length>2000){setDetailsError('Enter your name, a valid Kenyan mobile number and delivery address.');return;}
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(deliveryDate)||deliveryDate<eatDate()||deliveryDate>eatDate(new Date(Date.now()+60*86400000))){setDetailsError('Choose a delivery date within the next 60 days.');return;}
+    setSubmitting(true);try{const response=await fetch('/api/requests',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({customer_name:customer.name.trim(),phone,location:customer.location.trim(),notes:customer.notes.trim(),delivery_date:deliveryDate,idempotency_key:requestKey,lines:requestLines(cart)})});const result=await response.json();if(!response.ok)throw Error(result.error);setReference(result.reference);setCart([]);}catch(error){setDetailsError((error as Error).message);}finally{setSubmitting(false);}
+  }
+
+  return (
+    <main>
+      <header className="site-header">
+        <button
+          className="menu-button"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+          aria-expanded={menuOpen}
+        >
+          <span />
+          <span />
+        </button>
+        <a className="wordmark" href="#top" aria-label="Kinga Asili home">
+          <LeafMark />
+          <span>Kinga Asili</span>
+          <small>Nature in every pour</small>
+        </a>
+        <button className="cart-button" onClick={() => setCartOpen(true)}>
+          <BagIcon />
+          <span>Bag</span>
+          <b>{cartCount}</b>
+        </button>
+        <nav className={menuOpen ? "nav open" : "nav"}>
+          <a href="#story" onClick={() => setMenuOpen(false)}>
+            Our story
+          </a>
+          <a href="#shop" onClick={() => setMenuOpen(false)}>
+            Shop blends
+          </a>
+          <a href="#ritual" onClick={() => setMenuOpen(false)}>
+            The ritual
+          </a>
+          <a href="#contact" onClick={() => setMenuOpen(false)}>
+            Contact
+          </a>
+        </nav>
+      </header>
+
+      <section className="hero" id="top">
+        <div className="hero-copy">
+          <p className="eyebrow">Cold-pressed in Nairobi</p>
+          <h1>
+            Care for your
+            <br />
+            everyday <em>self.</em>
+          </h1>
+          <p className="hero-intro">
+            Vibrant ginger, sun-bright citrus and golden turmeric—thoughtfully blended into a small,
+            powerful daily ritual.
+          </p>
+          <button className="text-link" onClick={scrollToShop}>
+            Find your blend <ArrowIcon />
+          </button>
+        </div>
+        <div className="hero-visual">
+          <img
+            src="https://images.unsplash.com/photo-1606486746458-e44951581ade?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=1600"
+            alt="Fresh lemon and ginger ingredients arranged on a wooden board"
+          />
+          <div className="sun-orbit" />
+          <p className="photo-note">Ginger / citrus / turmeric</p>
+        </div>
+        <div className="hero-stamp">
+          <span>100%</span>
+          <small>natural ingredients</small>
+        </div>
+      </section>
+
+      <div className="marquee" aria-hidden="true">
+        <div>
+          <span>NO PRESERVATIVES</span>
+          <i>✦</i>
+          <span>MADE IN NAIROBI</span>
+          <i>✦</i>
+          <span>COLD-PRESSED</span>
+          <i>✦</i>
+          <span>SMALL-BATCH CARE</span>
+          <i>✦</i>
+          <span>NO PRESERVATIVES</span>
+        </div>
+      </div>
+
+      <section className="story" id="story">
+        <p className="section-number">01 / OUR PHILOSOPHY</p>
+        <div className="story-heading">
+          <LeafMark />
+          <h2>
+            Wellness isn’t a grand gesture.
+            <br />
+            It’s what you choose, <em>every day.</em>
+          </h2>
+        </div>
+        <div className="story-grid">
+          <figure>
+            <img
+              src="https://images.unsplash.com/photo-1631029098074-be99eb2b425c?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=1000"
+              alt="A golden citrus drink in a clear glass"
+            />
+          </figure>
+          <div>
+            <p>
+              Kinga Asili means “protect nature.” For us, that begins with protecting your own
+              nature—the energy, ease and balance that carries you through each day.
+            </p>
+            <p>
+              We press familiar ingredients with care, keeping every blend honest, fresh and close
+              to its source. Nothing complicated. Nothing hidden.
+            </p>
+            <a href="#ritual" className="text-link">
+              Why cold-pressed? <ArrowIcon />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="shop" id="shop">
+        <div className="shop-heading">
+          <div>
+            <p className="section-number">02 / THE BLENDS</p>
+            <h2>Pick your daily ritual.</h2>
+          </div>
+          <p>Two bright blends. Choose your bottle size or an available pack.</p>
+        </div>
+        {catalogueError&&<div className="catalogue-message" role="alert">{catalogueError} <button onClick={()=>void loadCatalogue()}>Retry</button> <a href="https://wa.me/254712866898">Contact Kinga</a></div>}
+        <div className="product-grid">
+          {blends.map((blend, blendIndex) => {
+            const sizes=catalogueChoices(products,bundles,blend.id);
+            const selected = sizes[selectedSizes[blend.id]]||sizes[0];
+            return (
+              <article className="product-card" key={blend.id}>
+                <div className="product-image">
+                  <img src={blend.image} alt={`${blend.name} ingredients`} />
+                  <span className="product-index">0{blendIndex + 1}</span>
+                </div>
+                <div className="product-info">
+                  <p className="product-note">{blend.note}</p>
+                  <h3>{blend.id}</h3>
+                  <p className="ingredients">{blend.name}</p>
+                  <p className="description">{blend.description}</p>
+                  <div className="size-picker">
+                    {sizes.map((size, index) => (
+                      <button
+                        key={size.label}
+                        className={selectedSizes[blend.id] === index ? "selected" : ""}
+                        onClick={() =>
+                          setSelectedSizes((current) => ({
+                            ...current,
+                            [blend.id]: index,
+                          }))
+                        }
+                      >
+                        <span>{size.label}</span>
+                        <small>{size.sub}</small>
+                      </button>
+                    ))}
+                  </div>
+                  <button className="add-button" disabled={!selected||loading} onClick={() => addToCart(blend.id)}>
+                    <span>{loading?"Loading…":selected?"Add to bag":"Currently unavailable"}</span>
+                    <b>{selected?`KES ${selected.price.toLocaleString()}`:""}</b>
+                    <ArrowIcon />
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="ritual" id="ritual">
+        <div className="ritual-image">
+          <img
+            src="https://images.unsplash.com/photo-1616442047042-f54e9f6bd435?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=1400"
+            alt="Lemon and a natural drink on a sunlit table"
+          />
+          <span>From the earth, for your everyday</span>
+        </div>
+        <div className="ritual-copy">
+          <p className="section-number">03 / MAKE IT A RITUAL</p>
+          <h2>
+            Small pour.
+            <br />
+            Big intention.
+          </h2>
+          <p>
+            Shake well. Pour cold. Take a breath. Our blends are made to slip into the life you
+            already live—before the commute, after a workout, or whenever you need a bright little
+            reset.
+          </p>
+          <div className="ritual-steps">
+            <div>
+              <b>01</b>
+              <span>Keep chilled</span>
+            </div>
+            <div>
+              <b>02</b>
+              <span>Shake it up</span>
+            </div>
+            <div>
+              <b>03</b>
+              <span>Pour & pause</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="order-banner" id="contact">
+        <div>
+          <LeafMark light />
+          <p className="eyebrow">Personal ordering, just as it should be</p>
+          <h2>
+            Let’s prepare
+            <br />
+            your next pour.
+          </h2>
+        </div>
+        <div>
+          <p>
+            Choose your blend, size and quantity, then send a request. We’ll confirm availability, delivery fees and payment details.
+          </p>
+          <button className="light-button" onClick={scrollToShop}>
+            Shop the blends <ArrowIcon />
+          </button>
+        </div>
+      </section>
+
+      <footer>
+        <div className="footer-brand">
+          <a className="wordmark light-wordmark" href="#top">
+            <LeafMark light />
+            <span>Kinga Asili</span>
+            <small>Nature in every pour</small>
+          </a>
+          <p>The art of everyday care.</p>
+        </div>
+        <div className="footer-links">
+          <div>
+            <small>Explore</small>
+            <a href="#story">Our story</a>
+            <a href="#shop">Shop blends</a>
+            <a href="#ritual">The ritual</a>
+          </div>
+          <div>
+            <small>Say hello</small>
+            <a href="https://www.instagram.com/kingaasili/" target="_blank" rel="noreferrer">
+              Instagram
+            </a>
+            <a href="https://wa.me/254712866898" target="_blank" rel="noreferrer">
+              Contact the team
+            </a>
+            <a href="https://wa.me/254712866898" target="_blank" rel="noreferrer">
+              WhatsApp
+            </a>
+          </div>
+          <div>
+            <small>Made with care</small>
+            <p>Nairobi, Kenya</p>
+            <p>Mon–Sat, 8am–6pm</p>
+          </div>
+        </div>
+        <p className="copyright">© {new Date().getFullYear()} KINGA ASILI · KEEP REFRIGERATED</p>
+      </footer>
+
+      <div
+        className={cartOpen ? "drawer-overlay open" : "drawer-overlay"}
+        onClick={closeCart}
+        aria-hidden="true"
+      />
+      <aside className={cartOpen ? "cart-drawer open" : "cart-drawer"} role="dialog" aria-modal={cartOpen||undefined} aria-labelledby="cart-title" aria-hidden={!cartOpen} inert={!cartOpen}>
+        <div className="drawer-header">
+          <div>
+            <p className="section-number">YOUR ORDER</p>
+            <h2 id="cart-title">Daily care, bottled.</h2>
+          </div>
+          <button onClick={closeCart} disabled={submitting} aria-label="Close bag">
+            ×
+          </button>
+        </div>
+        {reference?(<div className="request-confirmation" role="status"><LeafMark/><h3>Your request is with us.</h3><p>Reference <strong>{reference}</strong></p><p>The team will confirm availability, delivery fees and payment details before packing.</p><a className="text-link" href={`https://wa.me/254712866898?text=${encodeURIComponent('Hello Kinga! I am following up on request '+reference)}`} target="_blank" rel="noreferrer">Contact Kinga on WhatsApp <ArrowIcon/></a><button className="dark-button" onClick={()=>{setReference('');setRequestKey(crypto.randomUUID());setCartOpen(false);scrollToShop();}}>Keep exploring <ArrowIcon/></button></div>):cart.length === 0 ? (
+          <div className="empty-cart">
+            <LeafMark />
+            <p>Your bag is waiting for something bright.</p>
+            <button
+              className="dark-button"
+              onClick={() => {
+                setCartOpen(false);
+                scrollToShop();
+              }}
+            >
+              Explore blends <ArrowIcon />
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="cart-items">
+              {cart.map((item, index) => (
+                <div className="cart-item" key={item.key}>
+                  <div className={`mini-bottle ${item.blend.toLowerCase()}`}>
+                    <b>{item.blend}</b>
+                  </div>
+                  <div className="cart-item-copy">
+                    <h3>{item.blend}</h3>
+                    <p>{item.size}</p>
+                    <div className="quantity">
+                      <button disabled={submitting} aria-label={`Remove one ${item.blend} ${item.size}`} onClick={() => changeQuantity(index, -1)}>−</button>
+                      <span>{item.quantity}</span>
+                      <button disabled={submitting} aria-label={`Add one ${item.blend} ${item.size}`} onClick={() => changeQuantity(index, 1)}>+</button>
+                    </div>
+                  </div>
+                  <b>KES {(item.price * item.quantity).toLocaleString()}</b>
+                </div>
+              ))}
+              <div className="customer-details">
+                <div className="customer-details-heading">
+                  <p className="section-number">YOUR DETAILS</p>
+                  <p>So we can confirm and coordinate your delivery.</p>
+                </div>
+                <div className="field-row">
+                  <label>
+                    <span>Full name *</span>
+                    <input
+                      type="text"
+                      value={customer.name}
+                      onChange={(event) => updateCustomer("name", event.target.value)}
+                      maxLength={120}
+                      disabled={submitting}
+                      autoComplete="name"
+                      placeholder="Your name"
+                    />
+                  </label>
+                  <label>
+                    <span>Phone number *</span>
+                    <input
+                      type="tel"
+                      value={customer.phone}
+                      onChange={(event) => updateCustomer("phone", event.target.value)}
+                      maxLength={20}
+                      disabled={submitting}
+                      autoComplete="tel"
+                      placeholder="+254..."
+                    />
+                  </label>
+                </div>
+                <label>
+                  <span>Delivery location *</span>
+                  <textarea
+                    rows={3}
+                    maxLength={500}
+                    disabled={submitting}
+                    value={customer.location}
+                    onChange={(event) => updateCustomer("location", event.target.value)}
+                    autoComplete="street-address"
+                    placeholder="Area, estate or landmark"
+                  />
+                </label>
+                <label>
+                  <span>Order notes</span>
+                  <textarea
+                    maxLength={2000}
+                    disabled={submitting}
+                    value={customer.notes}
+                    onChange={(event) => updateCustomer("notes", event.target.value)}
+                    placeholder="Preferred delivery time or anything else"
+                    rows={2}
+                  />
+                </label>
+                <label><span>Preferred delivery date *</span><input type="date" min={eatDate()} max={eatDate(new Date(Date.now()+60*86400000))} value={deliveryDate} disabled={submitting} onChange={event=>setDeliveryDate(event.target.value)}/></label>
+                {detailsError && (
+                  <p className="details-error" role="alert">
+                    {detailsError}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="drawer-footer">
+              <div className="total">
+                <span>Estimated total</span>
+                <b>KES {cartTotal.toLocaleString()}</b>
+              </div>
+              <p>Delivery fee confirmed separately based on your location.</p>
+              <button className="whatsapp-button" disabled={submitting} onClick={()=>void submitOrder()}>
+                {submitting?"Sending request…":"Send order request"} <ArrowIcon />
+              </button>
+            </div>
+          </>
+        )}
+      </aside>
+    </main>
+  );
 }

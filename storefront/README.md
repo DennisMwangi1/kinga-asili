@@ -1,17 +1,15 @@
-# Kinga Asili customer website
+# Kinga Asili storefront
 
-This folder owns the public website and complete order-request flow. It is a separate Next.js application from the staff system.
+The customer website uses the design imported from KingaAsiliWellnessStorefront: the botanical landing page, brand story, blend cards, bottle and pack selector, and shopping-bag drawer. It lives in the parent Kinga repository, without a nested Git repository or separate GitHub remote.
 
-- `app/page.tsx`: public website entry.
-- `components/storefront.tsx`: brand story, catalogue and request confirmation.
-- `components/order-form.tsx`: customer order form and cart.
-- `app/api/catalogue/route.ts`: public catalogue endpoint.
-- `app/api/requests/route.ts`: order-request endpoint; prices are reconstructed by the database.
-- `lib/supabase.ts`: public database client only; no staff authentication or operations API.
-- `public/images/`: customer-facing brand imagery.
+The imported React frontend runs in the existing Next.js storefront host so the public catalogue and order-request API remain connected to the operations database. Figma/Vite preview plugins and the separate Vite dependency tree are not required.
 
-From the repository root: `npm run dev:storefront`. Or from this folder: `npm run dev`.
+- `components/storefront.tsx`: imported website and bag/checkout UI.
+- `app/globals.css`: imported responsive styling.
+- `lib/catalogue.ts`: live bottle variants, active bundles and request lines.
+- `app/api/catalogue/route.ts`: public catalogue.
+- `app/api/requests/route.ts`: order requests, with server-calculated prices.
 
-Open `http://localhost:3001/` for the live catalogue and ordering flow. The site requires the Kinga Supabase project. Requests do not reserve inventory or collect payments; staff confirm availability and delivery fees in the operations app first.
+Run `npm run dev:storefront` from the repository root, then open http://localhost:3001. Build using `npm run build:storefront`. The existing storefront environment settings remain in place; use `.env.example` for a fresh environment. No service-role credentials are used.
 
-Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `NEXT_PUBLIC_OPERATIONS_URL` as shown in `.env.example`. Shared code in `../shared/` is part of the source build context; deploy from the monorepo with this folder as the project root.
+Prices and active pack options come from Kinga's catalogue, rather than the imported prototype's hardcoded prices. Requests are saved with a reference; staff confirm availability and delivery fees before collecting payment. The website does not collect M-PESA payments or reserve stock.

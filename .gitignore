@@ -6,3 +6,7 @@ node_modules
 
 # Generated staff access details are local and private.
 .local/
+
+# Storefront build artifacts
+storefront/out/
+storefront/dist/
