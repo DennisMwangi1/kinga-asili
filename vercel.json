@@ -15,8 +15,102 @@
     }
   },
   "rewrites": [
-    { "source": "/shop", "destination": { "service": "storefront" } },
-    { "source": "/shop/(.*)", "destination": { "service": "storefront" } },
-    { "source": "/(.*)", "destination": { "service": "app" } }
+    {
+      "source": "/_storefront/(.*)",
+      "destination": {
+        "service": "storefront"
+      }
+    },
+    {
+      "source": "/login",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/dashboard",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/dashboard/(.*)",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/api/operations",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/api/assistant",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/api/assistant/(.*)",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/_next/(.*)",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/icons/(.*)",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/images/(.*)",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/sw.js",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/offline.html",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/icon.svg",
+      "destination": {
+        "service": "app"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "storefront"
+      }
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/shop/:path*",
+      "destination": "/:path*",
+      "permanent": false
+    }
   ]
 }

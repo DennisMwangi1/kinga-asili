@@ -8,8 +8,8 @@ export const creationActions:CreationAction[]=[
  {id:'purchase',label:'Material receipt',icon:'stock',description:'Record a supplier purchase',roles:['admin','stock_keeper','cashier']},
  {id:'expense',label:'Expense',icon:'purchases',description:'Record an operating cost',roles:['admin','stock_keeper','cashier']},
  {id:'material',label:'Stock material',icon:'stock',description:'Add an ingredient or packaging item',roles:['admin','stock_keeper']},
+ {id:'product',label:'Catalogue product',icon:'stock',description:'Add a storefront bottle variant',roles:['admin']},
  {id:'bundle',label:'Product bundle',icon:'bundles',description:'Configure a bottle pack',roles:['admin']},
- {id:'delivery-select',label:'Delivery update',icon:'delivery',description:'Update an assigned delivery',roles:['admin','driver']},
 ];
 export const availableCreationActions=(role:Role)=>creationActions.filter(action=>action.roles.includes(role));
 export const settingsSections:WorkspaceDestination[]=[
@@ -32,7 +32,7 @@ const pins:Record<Role,WorkspaceDestination[]>={
  sales:[{label:'Orders',href:'/dashboard/orders',icon:'orders'},{label:'Customers',href:'/dashboard/customers',icon:'people'}],
  cashier:[{label:'Orders',href:'/dashboard/orders',icon:'orders'},{label:'Stock',href:'/dashboard/inventory',icon:'stock'},{label:'Purchases',href:'/dashboard/purchases',icon:'purchases'}],
  stock_keeper:[{label:'Stock',href:'/dashboard/inventory',icon:'stock'},{label:'Production',href:'/dashboard/production',icon:'batches'},{label:'Purchases',href:'/dashboard/purchases',icon:'purchases'}],
- driver:[{label:'Deliveries',href:'/dashboard/deliveries',icon:'delivery'}],
+ driver:[],
 };
 /** Andishi's contextual dock: expose the active module without changing default pins. */
 export function contextualTabs(role:Role,current?:WorkspaceDestination):WorkspaceDestination[]{

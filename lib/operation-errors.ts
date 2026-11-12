@@ -4,6 +4,7 @@ export function operationError(action:string,error:DatabaseError){
  const constraint=(error.message||'').match(/unique constraint ["']([^"']+)["']/i)?.[1];
  if(error.code==='23505'){
   const known:Record<string,{message:string;field:string}>={
+   products_blend_volume_ml_key:{message:'This blend and bottle size already exist. Edit the existing product instead.',field:'volume_ml'},
    customers_phone_key:{message:'A customer already uses this mobile number. Open that customer or use another number.',field:'phone'},
    batches_reference_key:{message:'This batch reference is already in use. Enter a different batch reference.',field:'reference'},
    purchases_reference_key:{message:'This purchase or expense reference is already in use. Enter a different reference.',field:'reference'},
@@ -11,7 +12,6 @@ export function operationError(action:string,error:DatabaseError){
    orders_reference_key:{message:'This order reference is already in use. Enter a different order reference.',field:'reference'},
    orders_idempotency_key_key:{message:'This order request has already been submitted. Check your orders before trying again.',field:'idempotency_key'},
    materials_name_key:{message:'A material with this name already exists. Open the existing material or use a different name.',field:'name'},
-   products_blend_volume_ml_key:{message:'This blend and bottle size already exist in the catalogue.',field:'volume_ml'},
   };
   const fallback:Record<string,string>={save_customer:'customers_phone_key',update_customer:'customers_phone_key',save_batch:'batches_reference_key',save_purchase:'purchases_reference_key',record_payment:'payments_reference_key',save_material:'materials_name_key'};
   const match=known[constraint||fallback[action]];

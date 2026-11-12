@@ -1,7 +1,7 @@
 import type {Role,Snapshot} from '@/lib/domain';
 import type {ProposalChange,ExecutionItem,ExecutionResult} from './types';
 export const botActions=['save_order','transition_order','record_payment','save_batch','post_batch','save_purchase','post_purchase','save_customer','save_material','hold_lot'] as const;
-const roles:Record<string,readonly Role[]>={save_order:['admin','sales','cashier'],transition_order:['admin','sales','cashier','driver'],record_payment:['admin','cashier'],save_batch:['admin','stock_keeper'],post_batch:['admin','stock_keeper'],save_purchase:['admin','cashier','stock_keeper'],post_purchase:['admin','cashier','stock_keeper'],save_customer:['admin','sales','cashier'],save_material:['admin','stock_keeper'],hold_lot:['admin','stock_keeper']};
+const roles:Record<string,readonly Role[]>={save_order:['admin','sales','cashier'],transition_order:['admin','sales','cashier'],record_payment:['admin','cashier'],save_batch:['admin','stock_keeper'],post_batch:['admin','stock_keeper'],save_purchase:['admin','cashier','stock_keeper'],post_purchase:['admin','cashier','stock_keeper'],save_customer:['admin','sales','cashier'],save_material:['admin','stock_keeper'],hold_lot:['admin','stock_keeper']};
 export const allowedBotActions=(role:Role)=>botActions.filter(action=>roles[action].includes(role));
 export const MAX_CHANGES=50;
 export function proposalChanges(proposal:ProposalChange):ProposalChange[]{

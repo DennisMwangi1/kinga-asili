@@ -6,7 +6,6 @@ import {navigation,type Role} from '@/lib/domain';
 import {availableCreationActions,contextualTabs,moduleSections,type WorkspaceDestination} from '@/lib/workspace-navigation';
 import Sheet from './sheet';
 import WorkspaceIcon from './workspace-icon';
-import {InstallWorkspace} from './workspace-pwa';
 export default function MobileTabs({role,name,onSignOut,onCreate}:{role:Role;name:string;onSignOut:()=>Promise<void>;onCreate:(id:string)=>void}){
  const [panel,setPanel]=useState<'more'|'create'|'sections'|null>(null),[sectionModule,setSectionModule]=useState<WorkspaceDestination|null>(null);
  const pending=useRef<{href?:string;create?:string}|null>(null),router=useRouter(),path=usePathname();
@@ -28,7 +27,7 @@ export default function MobileTabs({role,name,onSignOut,onCreate}:{role:Role;nam
   </Fragment>)}
   <button aria-label="More workspace options" aria-expanded={panel==='more'} onClick={()=>setPanel('more')} className="studio-mobile-tab" data-active={panel==='more'||undefined}><span className="studio-mobile-tab-icon"><WorkspaceIcon name="more"/></span><span>More</span></button>
  </nav>
- <Sheet open={panel==='more'} onClose={close} onOpenChangeComplete={afterClose} title="Your workspace" variant="navigation" footer={<><InstallWorkspace/><button className="mobile-signout" onClick={()=>void onSignOut()}>Sign out</button></>}><p className="sheet-account">{name} · {role==='admin'?'Owner':role.replace('_',' ')}</p><nav className="studio-navigation-grid" aria-label="All workspace pages">{permitted.map(([label,href])=>tile({label,href,icon:label}))}</nav></Sheet>
+ <Sheet open={panel==='more'} onClose={close} onOpenChangeComplete={afterClose} title="Your workspace" variant="navigation" footer={<><button className="mobile-signout" onClick={()=>void onSignOut()}>Sign out</button></>}><p className="sheet-account">{name} · {role==='admin'?'Owner':role.replace('_',' ')}</p><nav className="studio-navigation-grid" aria-label="All workspace pages">{permitted.map(([label,href])=>tile({label,href,icon:label}))}</nav></Sheet>
  <Sheet open={panel==='create'} onClose={close} onOpenChangeComplete={afterClose} title="Create or record" variant="navigation"><div className="creation-menu">{creations.map(action=><button key={action.id} onClick={()=>{pending.current={create:action.id};close();}}><span className="creation-icon"><WorkspaceIcon name={action.icon}/></span><span><strong>{action.label}</strong><small>{action.description}</small></span><span aria-hidden="true">→</span></button>)}</div></Sheet>
  <Sheet open={panel==='sections'} onClose={close} onOpenChangeComplete={afterClose} title={sectionModule?.label||'Sections'} variant="navigation"><nav className="studio-navigation-grid" aria-label="Module sections">{moduleSections(sectionModule?.href.split('/')[2]||'').map(tile)}</nav></Sheet>
  </>;

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import {useDialog} from "@shared/use-dialog";
 import {eatDate,type Product,type RecordRow} from "@shared/domain";
 import {storefrontPath} from "@/lib/urls";
-import {catalogueChoices,requestLines,type CartItem} from "@/lib/catalogue";
+import {catalogueBlends,catalogueChoices,requestLines,type CartItem} from "@/lib/catalogue";
 
 type Blend = "GLT" | "GOT";
 
@@ -14,28 +14,6 @@ type CustomerDetails = {
   notes: string;
 };
 
-const blends = [
-  {
-    id: "GLT" as Blend,
-    name: "Ginger · Lemon · Turmeric",
-    note: "Bright, zesty & grounding",
-    description:
-      "A lively lemon-led blend with the warming depth of ginger and turmeric. Your golden reset, bottled.",
-    image:
-      "https://images.unsplash.com/photo-1678890565859-a2dadf52a48f?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=1400",
-    color: "#d8b331",
-  },
-  {
-    id: "GOT" as Blend,
-    name: "Ginger · Orange · Turmeric",
-    note: "Juicy, mellow & warming",
-    description:
-      "A smooth, citrus-rich blend balancing sweet orange with fresh ginger and earthy turmeric.",
-    image:
-      "https://images.unsplash.com/photo-1787020546612-eafe4080ce43?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=1400",
-    color: "#dc7938",
-  },
-];
 
 function ArrowIcon() {
   return (
@@ -67,8 +45,9 @@ function LeafMark({ light = false }: { light?: boolean }) {
 export default function Storefront() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [products,setProducts]=useState<Product[]>([]),[bundles,setBundles]=useState<RecordRow[]>([]),[catalogueError,setCatalogueError]=useState(''),[loading,setLoading]=useState(true),[submitting,setSubmitting]=useState(false),[reference,setReference]=useState(''),[deliveryDate,setDeliveryDate]=useState(eatDate()),[requestKey,setRequestKey]=useState(()=>crypto.randomUUID());
-  const loadCatalogue=useCallback(async()=>{setLoading(true);setCatalogueError('');try{const response=await fetch(storefrontPath('api/catalogue'));const result=await response.json();if(!response.ok)throw Error(result.error);setProducts(result.products);setBundles(result.bundles);}catch(error){setCatalogueError((error as Error).message);}finally{setLoading(false);}},[]);
-  useEffect(()=>{void loadCatalogue();},[loadCatalogue]);
+  const loadCatalogue=useCallback(async(quiet=false)=>{if(!quiet)setLoading(true);setCatalogueError('');try{const response=await fetch(storefrontPath('api/catalogue'),{cache:'no-store'});const result=await response.json();if(!response.ok)throw Error(result.error);setProducts(result.products);setBundles(result.bundles);}catch(error){setCatalogueError((error as Error).message);}finally{setLoading(false);}},[]);
+  useEffect(()=>{void loadCatalogue();const refresh=()=>{if(document.visibilityState==='visible')void loadCatalogue(true);};const timer=window.setInterval(refresh,30000);window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);return()=>{window.clearInterval(timer);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};},[loadCatalogue]);
+  const blends=catalogueBlends(products);
   const [cartOpen, setCartOpen] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customer, setCustomer] = useState<CustomerDetails>({
@@ -138,11 +117,14 @@ export default function Storefront() {
           <span>Kinga Asili</span>
           <small>Nature in every pour</small>
         </a>
-        <button className="cart-button" onClick={() => setCartOpen(true)}>
-          <BagIcon />
-          <span>Bag</span>
-          <b>{cartCount}</b>
-        </button>
+        <div className="header-actions">
+          <a className="staff-login" href="/login" aria-label="Staff login">Login</a>
+          <button className="cart-button" onClick={() => setCartOpen(true)}>
+            <BagIcon />
+            <span>Bag</span>
+            <b>{cartCount}</b>
+          </button>
+        </div>
         <nav className={menuOpen ? "nav open" : "nav"}>
           <a href="#story" onClick={() => setMenuOpen(false)}>
             Our story
@@ -242,24 +224,26 @@ export default function Storefront() {
             <p className="section-number">02 / THE BLENDS</p>
             <h2>Pick your daily ritual.</h2>
           </div>
-          <p>Two bright blends. Choose your bottle size or an available pack.</p>
+          <p>Choose your blend, bottle size or an available pack.</p>
         </div>
         {catalogueError&&<div className="catalogue-message" role="alert">{catalogueError} <button onClick={()=>void loadCatalogue()}>Retry</button> <a href="https://wa.me/254712866898">Contact Kinga</a></div>}
+        {!loading&&!catalogueError&&!blends.length&&<p className="catalogue-message">Our catalogue is being prepared. Please check back soon or contact Kinga.</p>}
         <div className="product-grid">
           {blends.map((blend, blendIndex) => {
             const sizes=catalogueChoices(products,bundles,blend.id);
             const selected = sizes[selectedSizes[blend.id]]||sizes[0];
+            const product=blend.variants.find(variant=>variant.id===selected?.product_id)||blend.variants[0];
             return (
               <article className="product-card" key={blend.id}>
                 <div className="product-image">
-                  <img src={blend.image} alt={`${blend.name} ingredients`} />
+                  <img src={product.image} alt={product.name} />
                   <span className="product-index">0{blendIndex + 1}</span>
                 </div>
                 <div className="product-info">
-                  <p className="product-note">{blend.note}</p>
+                  <p className="product-note">{product.note}</p>
                   <h3>{blend.id}</h3>
-                  <p className="ingredients">{blend.name}</p>
-                  <p className="description">{blend.description}</p>
+                  <p className="ingredients">{product.name}</p>
+                  <p className="description">{product.description}</p>
                   <div className="size-picker">
                     {sizes.map((size, index) => (
                       <button
@@ -361,6 +345,7 @@ export default function Storefront() {
             <a href="#story">Our story</a>
             <a href="#shop">Shop blends</a>
             <a href="#ritual">The ritual</a>
+            <a href="/login">Staff login</a>
           </div>
           <div>
             <small>Say hello</small>

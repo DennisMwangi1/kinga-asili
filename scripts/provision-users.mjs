@@ -8,7 +8,7 @@ let raw='';for await (const chunk of process.stdin)raw+=chunk;
 const input=JSON.parse(raw);raw='';
 const url='https://tbxokonhjeellhfcusui.supabase.co';
 if(typeof input.serviceRoleKey!=='string'||!Array.isArray(input.users)||!input.users.length)throw Error('Supply serviceRoleKey and an explicit users array through stdin.');
-const roles=new Set(['admin','sales','cashier','stock_keeper','driver']);
+const roles=new Set(['admin','sales','cashier','stock_keeper']);
 for(const user of input.users){
  if(typeof user.name!=='string'||user.name.trim().length<2||typeof user.email!=='string'||!/^\S+@\S+\.\S+$/.test(user.email)||!roles.has(user.role))throw Error('Every user requires a name, email and supported role.');
 }

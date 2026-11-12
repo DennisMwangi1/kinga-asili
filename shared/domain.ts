@@ -8,6 +8,9 @@ export interface Product {
     price: number;
     price_confirmed: boolean;
     image: string;
+    active?: boolean;
+    note?: string;
+    description?: string;
     available: number;
 }
 export interface OrderLine {
@@ -33,6 +36,8 @@ export interface Order {
     discount: number;
     delivery_date: string;
     created_at: string;
+    source?: 'staff' | 'web';
+    /** Legacy delivery assignment, retained only for historical records. */
     rider_id?: string;
     exception_reason?: string;
 }
@@ -94,7 +99,7 @@ export function csv(rows: Record<string, unknown>[]) {
     return '\uFEFF' + [keys.map(cell).join(','), ...rows.map(r => keys.map(k => cell(r[k])).join(','))].join('\r\n');
 }
 export const navigation = [
-    ['Overview', '/dashboard', '◫', ['admin']], ['Orders', '/dashboard/orders', '▤', ['admin', 'sales', 'cashier']], ['Production', '/dashboard/production', '◉', ['admin', 'stock_keeper']], ['Inventory', '/dashboard/inventory', '▦', ['admin', 'stock_keeper', 'cashier']], ['Purchases & Expenses', '/dashboard/purchases', '↗', ['admin', 'stock_keeper', 'cashier']], ['Customers', '/dashboard/customers', '♧', ['admin', 'sales', 'cashier']], ['Deliveries', '/dashboard/deliveries', '⇢', ['admin', 'driver']], ['Reports', '/dashboard/reports', '▥', ['admin']], ['Settings', '/dashboard/settings', '⚙', ['admin']]
+    ['Overview', '/dashboard', '◫', ['admin']], ['Orders', '/dashboard/orders', '▤', ['admin', 'sales', 'cashier']], ['Production', '/dashboard/production', '◉', ['admin', 'stock_keeper']], ['Inventory', '/dashboard/inventory', '▦', ['admin', 'stock_keeper', 'cashier']], ['Purchases & Expenses', '/dashboard/purchases', '↗', ['admin', 'stock_keeper', 'cashier']], ['Customers', '/dashboard/customers', '♧', ['admin', 'sales', 'cashier']], ['Reports', '/dashboard/reports', '▥', ['admin']], ['Settings', '/dashboard/settings', '⚙', ['admin']]
 ] as const;
 export function weeklyMetrics(s: Snapshot, from: string, to: string) {
     const within = (v: string) => { const day = v.length === 10 ? v : eatDate(new Date(v)); return day >= from && day <= to; };

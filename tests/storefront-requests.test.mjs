@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import ts from 'typescript';
+import {readFile} from 'node:fs/promises';
+const source=await readFile(new URL('../storefront/app/api/requests/route.ts',import.meta.url),'utf8');
+let calls=[],failure=null;
+globalThis.__kingaPublicRequestDb={rpc:async(name,args)=>{calls.push({name,args});return failure?{data:null,error:failure}:{data:'KA-WEB-1001',error:null};}};
+const db='data:text/javascript;base64,'+Buffer.from('export function requestDatabase(){return globalThis.__kingaPublicRequestDb}').toString('base64');
+const compiled=ts.transpileModule(source.replace("'@/lib/supabase'",JSON.stringify(db)),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const {POST}=await import('data:text/javascript;base64,'+Buffer.from(compiled).toString('base64'));
+const payload={customer_name:'Customer',phone:'0712345678',location:'Nairobi',delivery_date:'2026-11-12',idempotency_key:'00000000-0000-4000-8000-000000000001',lines:[{product_id:'product',quantity:2}]};
+const request=()=>new Request('https://kinga.test/api/requests',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+test('website submissions use the shared database request function and return its saved reference',async()=>{calls=[];const response=await POST(request());assert.equal(response.status,201);assert.deepEqual(await response.json(),{reference:'KA-WEB-1001'});assert.equal(calls[0].name,'kinga_public_request');assert.deepEqual(calls[0].args.p_data,payload);});
+test('retries retain the original request key for database idempotency',async()=>{calls=[];await POST(request());await POST(request());assert.equal(calls[0].args.p_data.idempotency_key,calls[1].args.p_data.idempotency_key);});
+test('database rejection never reports a successful request reference',async()=>{failure={message:'Choose a preferred date within the next 60 days'};try{const response=await POST(request());assert.equal(response.status,400);const body=await response.json();assert.equal(body.error,failure.message);assert.ok(!body.reference);}finally{failure=null;}});
